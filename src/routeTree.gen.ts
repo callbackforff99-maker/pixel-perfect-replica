@@ -10,33 +10,83 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CalmRouteImport } from './routes/calm'
+import { Route as JournalRouteImport } from './routes/journal'
+import { Route as MedsRouteImport } from './routes/meds'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SleepRouteImport } from './routes/sleep'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CalmRoute = CalmRouteImport.update({
+  id: '/calm',
+  path: '/calm',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JournalRoute = JournalRouteImport.update({
+  id: '/journal',
+  path: '/journal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MedsRoute = MedsRouteImport.update({
+  id: '/meds',
+  path: '/meds',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SleepRoute = SleepRouteImport.update({
+  id: '/sleep',
+  path: '/sleep',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/calm': typeof CalmRoute
+  '/journal': typeof JournalRoute
+  '/meds': typeof MedsRoute
+  '/settings': typeof SettingsRoute
+  '/sleep': typeof SleepRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/calm': typeof CalmRoute
+  '/journal': typeof JournalRoute
+  '/meds': typeof MedsRoute
+  '/settings': typeof SettingsRoute
+  '/sleep': typeof SleepRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/calm': typeof CalmRoute
+  '/journal': typeof JournalRoute
+  '/meds': typeof MedsRoute
+  '/settings': typeof SettingsRoute
+  '/sleep': typeof SleepRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/calm' | '/journal' | '/meds' | '/settings' | '/sleep'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/calm' | '/journal' | '/meds' | '/settings' | '/sleep'
+  id: '__root__' | '/' | '/calm' | '/journal' | '/meds' | '/settings' | '/sleep'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CalmRoute: typeof CalmRoute
+  JournalRoute: typeof JournalRoute
+  MedsRoute: typeof MedsRoute
+  SettingsRoute: typeof SettingsRoute
+  SleepRoute: typeof SleepRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +98,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/calm': {
+      id: '/calm'
+      path: '/calm'
+      fullPath: '/calm'
+      preLoaderRoute: typeof CalmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/journal': {
+      id: '/journal'
+      path: '/journal'
+      fullPath: '/journal'
+      preLoaderRoute: typeof JournalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meds': {
+      id: '/meds'
+      path: '/meds'
+      fullPath: '/meds'
+      preLoaderRoute: typeof MedsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sleep': {
+      id: '/sleep'
+      path: '/sleep'
+      fullPath: '/sleep'
+      preLoaderRoute: typeof SleepRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CalmRoute: CalmRoute,
+  JournalRoute: JournalRoute,
+  MedsRoute: MedsRoute,
+  SettingsRoute: SettingsRoute,
+  SleepRoute: SleepRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
