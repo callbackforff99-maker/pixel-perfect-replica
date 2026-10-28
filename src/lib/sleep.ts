@@ -2,9 +2,9 @@ export type SleepLog = {
   id: string;
   start: string; // ISO
   end: string; // ISO
-  awakenings?: number;
-  quality?: number;
-  notes?: string;
+  awakenings?: number | undefined | undefined;
+  quality?: number | undefined | undefined;
+  notes?: string | undefined;
   createdAt: string;
   updatedAt: string;
 };
@@ -16,7 +16,7 @@ export function durationMinutes(startISO: string, endISO: string): number {
 }
 
 export function validateSleep(
-  input: { start: string; end: string; quality?: number; awakenings?: number },
+  input: { start: string; end: string; quality?: number | undefined | undefined; awakenings?: number | undefined },
   existing: SleepLog[],
   ignoreId?: string,
 ): string | null {

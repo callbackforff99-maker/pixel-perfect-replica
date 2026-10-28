@@ -35,14 +35,12 @@ function SleepPage() {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    const start = new Date(form.start).toISOString?.() ?? "";
     const input = {
       start: new Date(form.start).toString() === "Invalid Date" ? "x" : new Date(form.start).toISOString(),
       end: new Date(form.end).toString() === "Invalid Date" ? "x" : new Date(form.end).toISOString(),
       awakenings: form.awakenings === "" ? undefined : Number(form.awakenings),
       quality: form.quality,
     };
-    void start;
     const v = validateSleep(input, db.sleep, editing ?? undefined);
     setErr(v);
     setMsg(null);

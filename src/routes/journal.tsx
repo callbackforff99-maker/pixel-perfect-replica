@@ -17,7 +17,7 @@ export const Route = createFileRoute("/journal")({
   component: Journal,
 });
 
-type Form = { date: string; mood?: number; stress?: number; energy?: number; text: string };
+type Form = { date: string; mood?: number; stress?: number | undefined; energy?: number | undefined; text: string };
 const blank = (): Form => ({ date: localDate(), text: "" });
 
 function Journal() {
