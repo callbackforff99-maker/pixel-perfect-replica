@@ -9,21 +9,21 @@ export type MoodEntry = {
   id: string;
   date: string; // local YYYY-MM-DD
   mood: number;
-  stress?: number;
-  energy?: number;
-  text?: string;
+  stress?: number | undefined | undefined;
+  energy?: number | undefined | undefined;
+  text?: string | undefined;
   createdAt: string;
   updatedAt: string;
 };
 export type Medication = {
   id: string;
   name: string;
-  instructions?: string;
+  instructions?: string | undefined;
   times: string[];
   startDate: string;
-  endDate?: string;
+  endDate?: string | undefined;
   enabled: boolean;
-  notes?: string;
+  notes?: string | undefined;
 };
 export type MedEvent = { id: string; medId: string; at: string; action: "taken" | "dismissed" };
 export type BreathSession = { id: string; at: string; seconds: number; completed: boolean };
@@ -145,7 +145,7 @@ export function sleepCSV(logs: SleepLog[]) {
   return ["start,end,awakenings,quality,notes", ...logs.map((l) => [l.start, l.end, l.awakenings ?? "", l.quality ?? "", esc(l.notes)].join(","))].join("\n");
 }
 
-export function validateMood(m: { mood: number; stress?: number; energy?: number }) {
+export function validateMood(m: { mood: number; stress?: number | undefined | undefined; energy?: number | undefined }) {
   const ok = (v?: number) => v === undefined || (Number.isInteger(v) && v >= 1 && v <= 5);
   if (!Number.isInteger(m.mood) || m.mood < 1 || m.mood > 5) return "Pick a mood from 1 to 5.";
   if (!ok(m.stress) || !ok(m.energy)) return "Ratings must be 1–5.";

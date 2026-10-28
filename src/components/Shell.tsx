@@ -37,7 +37,7 @@ export function Shell({ children }: { children: ReactNode }) {
   );
 }
 
-export function PageHead({ title, sub, right }: { title: string; sub?: string; right?: ReactNode }) {
+export function PageHead({ title, sub, right }: { title: string; sub?: string | undefined; right?: ReactNode }) {
   return (
     <header className="mb-5 flex items-end justify-between px-4">
       <div>
@@ -49,7 +49,7 @@ export function PageHead({ title, sub, right }: { title: string; sub?: string; r
   );
 }
 
-export function Rating({ value, onChange, label }: { value?: number; onChange: (v?: number) => void; label: string }) {
+export function Rating({ value, onChange, label }: { value?: number | undefined; onChange: (v?: number) => void; label: string }) {
   return (
     <div>
       <p className="mb-1.5 text-sm text-muted-foreground">{label}</p>
