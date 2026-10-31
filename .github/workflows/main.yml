@@ -1,3 +1,4 @@
+```yaml
 name: SleeepX Android APK Build
 
 on:
@@ -30,44 +31,82 @@ jobs:
       - name: Install project dependencies
         run: bun install --frozen-lockfile
 
-      - name: Add Capacitor Android dependencies
+      - name: Install Capacitor
         run: bun add @capacitor/core @capacitor/android @capacitor/cli
 
       - name: Build web app
         run: bun run build
-      - name: Prepare Android web assets
+
+      - name: Locate web build
+        id: web
+        shell: bash
         run: |
           set -e
-          mkdir -p .output/public
-          if [ ! -f .output/public/index.html ]; then
-            echo "Searching for built index.html..."
-            find .output -type f -name index.html
-            FOUND=$(find .output -type f -name index.html | head -n 1)
+
+          FOUND=""
+
+          for DIR in dist build out .output/public www; do
+            if [ -f "$DIR/index.html" ]; then
+              FOUND="$DIR"
+              break
+            fi
+          done
+
+          if [ -z "$FOUND" ]; then
+            FOUND=$(find . \
+              -path './node_modules' -prune -o \
+              -path './.git' -prune -o \
+              -path './android' -prune -o \
+              -type f -name index.html -print | head -n 1)
+
             if [ -n "$FOUND" ]; then
-              cp "$FOUND" .output/public/index.html
-            else
-              echo "ERROR: No built index.html found"
-              exit 1
+              FOUND=$(dirname "$FOUND")
             fi
           fi
+
+          if [ -z "$FOUND" ] || [ ! -f "$FOUND/index.html" ]; then
+            echo "ERROR: Built index.html not found!"
+            echo "Available HTML files:"
+            find . -name '*.html' \
+              -not -path './node_modules/*' \
+              -not -path './.git/*'
+            exit 1
+          fi
+
+          echo "Web directory: $FOUND"
+          echo "web_dir=$FOUND" >> "$GITHUB_OUTPUT"
+
       - name: Configure Capacitor
         run: |
-          cat > capacitor.config.json <<'EOF'
-          {
-            "appId": "com.zerox.sleeepx",
-            "appName": "SleeepX",
-          "webDir": ".output/public"
-          }
-          EOF
+          node -e '
+          const fs = require("fs");
+          const config = {
+            appId: "com.zerox.sleeepx",
+            appName: "SleeepX",
+            webDir: process.env.WEB_DIR
+          };
+          fs.writeFileSync(
+            "capacitor.config.json",
+            JSON.stringify(config, null, 2)
+          );
+          '
+        env:
+          WEB_DIR: ${{ steps.web.outputs.web_dir }}
 
       - name: Add Android platform
-        run: bunx cap add android
+        run: |
+          if [ ! -d android ]; then
+            bunx cap add android
+          fi
 
-      - name: Sync web app to Android
+      - name: Sync Android
         run: bunx cap sync android
 
       - name: Build debug APK
-        run: cd android && ./gradlew assembleDebug
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
 
       - name: Upload SleeepX APK
         uses: actions/upload-artifact@v4
@@ -75,3 +114,4 @@ jobs:
           name: SleeepX-Android-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+```
