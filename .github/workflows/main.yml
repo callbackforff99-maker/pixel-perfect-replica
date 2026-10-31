@@ -1,4 +1,4 @@
-name: SleeepX Android Build
+name: SleeepX Android APK Build
 
 on:
   workflow_dispatch:
@@ -21,17 +21,43 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install dependencies
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Install project dependencies
         run: bun install --frozen-lockfile
+
+      - name: Add Capacitor Android dependencies
+        run: bun add @capacitor/core @capacitor/android @capacitor/cli
 
       - name: Build web app
         run: bun run build
 
-      - name: Save build output
+      - name: Configure Capacitor
+        run: |
+          cat > capacitor.config.json <<'EOF'
+          {
+            "appId": "com.zerox.sleeepx",
+            "appName": "SleeepX",
+            "webDir": "dist"
+          }
+          EOF
+
+      - name: Add Android platform
+        run: bunx cap add android
+
+      - name: Sync web app to Android
+        run: bunx cap sync android
+
+      - name: Build debug APK
+        run: cd android && ./gradlew assembleDebug
+
+      - name: Upload SleeepX APK
         uses: actions/upload-artifact@v4
         with:
-          name: SleeepX-web-build
-          path: |
-            dist/
-            .output/
-          if-no-files-found: warn
+          name: SleeepX-Android-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
