@@ -1,15 +1,17 @@
-```yaml
 name: SleeepX Android APK Build
 
 on:
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Get source code
+      - name: Checkout source
         uses: actions/checkout@v4
 
       - name: Setup Bun
@@ -17,18 +19,13 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
 
-      - name: Install project dependencies
+      - name: Install dependencies
         run: bun install --frozen-lockfile
 
       - name: Install Capacitor
@@ -37,15 +34,14 @@ jobs:
       - name: Build web app
         run: bun run build
 
-      - name: Locate web build
+      - name: Find web build directory
         id: web
         shell: bash
         run: |
           set -e
-
           FOUND=""
 
-          for DIR in dist build out .output/public www; do
+          for DIR in .output/public dist build out www; do
             if [ -f "$DIR/index.html" ]; then
               FOUND="$DIR"
               break
@@ -53,30 +49,28 @@ jobs:
           done
 
           if [ -z "$FOUND" ]; then
-            FOUND=$(find . \
+            FILE=$(find . \
               -path './node_modules' -prune -o \
               -path './.git' -prune -o \
               -path './android' -prune -o \
-              -type f -name index.html -print | head -n 1)
+              -type f -name index.html -print -quit)
 
-            if [ -n "$FOUND" ]; then
-              FOUND=$(dirname "$FOUND")
+            if [ -n "$FILE" ]; then
+              FOUND=$(dirname "$FILE")
             fi
           fi
 
-          if [ -z "$FOUND" ] || [ ! -f "$FOUND/index.html" ]; then
-            echo "ERROR: Built index.html not found!"
-            echo "Available HTML files:"
-            find . -name '*.html' \
-              -not -path './node_modules/*' \
-              -not -path './.git/*'
+          if [ -z "$FOUND" ]; then
+            echo "ERROR: index.html not found"
             exit 1
           fi
 
-          echo "Web directory: $FOUND"
           echo "web_dir=$FOUND" >> "$GITHUB_OUTPUT"
+          echo "Found web directory: $FOUND"
 
       - name: Configure Capacitor
+        env:
+          WEB_DIR: ${{ steps.web.outputs.web_dir }}
         run: |
           node -e '
           const fs = require("fs");
@@ -85,13 +79,8 @@ jobs:
             appName: "SleeepX",
             webDir: process.env.WEB_DIR
           };
-          fs.writeFileSync(
-            "capacitor.config.json",
-            JSON.stringify(config, null, 2)
-          );
+          fs.writeFileSync("capacitor.config.json", JSON.stringify(config, null, 2));
           '
-        env:
-          WEB_DIR: ${{ steps.web.outputs.web_dir }}
 
       - name: Add Android platform
         run: |
@@ -102,16 +91,15 @@ jobs:
       - name: Sync Android
         run: bunx cap sync android
 
-      - name: Build debug APK
+      - name: Build APK
         run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug
 
-      - name: Upload SleeepX APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: SleeepX-Android-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
-```
