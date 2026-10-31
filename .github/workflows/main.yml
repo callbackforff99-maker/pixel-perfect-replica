@@ -35,7 +35,21 @@ jobs:
 
       - name: Build web app
         run: bun run build
-
+      - name: Prepare Android web assets
+        run: |
+          set -e
+          mkdir -p .output/public
+          if [ ! -f .output/public/index.html ]; then
+            echo "Searching for built index.html..."
+            find .output -type f -name index.html
+            FOUND=$(find .output -type f -name index.html | head -n 1)
+            if [ -n "$FOUND" ]; then
+              cp "$FOUND" .output/public/index.html
+            else
+              echo "ERROR: No built index.html found"
+              exit 1
+            fi
+          fi
       - name: Configure Capacitor
         run: |
           cat > capacitor.config.json <<'EOF'
