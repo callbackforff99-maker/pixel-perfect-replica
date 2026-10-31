@@ -33,24 +33,26 @@ jobs:
 
       - name: Build web app
         run: bun run build
-        - name: Prepare Android web assets
-          id: web
-          shell: bash
-          run: |
-            set -e
-            mkdir -p .output/public
 
-            if [ -f .output/public/_shell.html ]; then
-              cp .output/public/_shell.html .output/public/index.html
-            fi
+      - name: Prepare Android web assets
+        id: web
+        shell: bash
+        run: |
+          set -e
+          mkdir -p .output/public
 
-            if [ ! -s .output/public/index.html ]; then
-              echo "ERROR: SPA shell missing. Build output:"
-              find .output -maxdepth 4 -type f | head -100
-              exit 1
-            fi
+          if [ -f .output/public/_shell.html ]; then
+            cp .output/public/_shell.html .output/public/index.html
+          fi
 
-            echo "web_dir=.output/public" >> "$GITHUB_OUTPUT"
+          if [ ! -s .output/public/index.html ]; then
+            echo "ERROR: SPA shell missing. Build output:"
+            find .output -maxdepth 4 -type f | head -100
+            exit 1
+          fi
+
+          echo "web_dir=.output/public" >> "$GITHUB_OUTPUT"
+
       - name: Configure Capacitor
         env:
           WEB_DIR: ${{ steps.web.outputs.web_dir }}
