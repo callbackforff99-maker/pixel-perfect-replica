@@ -33,41 +33,24 @@ jobs:
 
       - name: Build web app
         run: bun run build
+        - name: Prepare Android web assets
+          id: web
+          shell: bash
+          run: |
+            set -e
+            mkdir -p .output/public
 
-      - name: Find web build directory
-        id: web
-        shell: bash
-        run: |
-          set -e
-          FOUND=""
-
-          for DIR in .output/public dist build out www; do
-            if [ -f "$DIR/index.html" ]; then
-              FOUND="$DIR"
-              break
+            if [ -f .output/public/_shell.html ]; then
+              cp .output/public/_shell.html .output/public/index.html
             fi
-          done
 
-          if [ -z "$FOUND" ]; then
-            FILE=$(find . \
-              -path './node_modules' -prune -o \
-              -path './.git' -prune -o \
-              -path './android' -prune -o \
-              -type f -name index.html -print -quit)
-
-            if [ -n "$FILE" ]; then
-              FOUND=$(dirname "$FILE")
+            if [ ! -s .output/public/index.html ]; then
+              echo "ERROR: SPA shell missing. Build output:"
+              find .output -maxdepth 4 -type f | head -100
+              exit 1
             fi
-          fi
 
-          if [ -z "$FOUND" ]; then
-            echo "ERROR: index.html not found"
-            exit 1
-          fi
-
-          echo "web_dir=$FOUND" >> "$GITHUB_OUTPUT"
-          echo "Found web directory: $FOUND"
-
+            echo "web_dir=.output/public" >> "$GITHUB_OUTPUT"
       - name: Configure Capacitor
         env:
           WEB_DIR: ${{ steps.web.outputs.web_dir }}
