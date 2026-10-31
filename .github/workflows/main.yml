@@ -42,7 +42,7 @@ jobs:
           {
             "appId": "com.zerox.sleeepx",
             "appName": "SleeepX",
-            "webDir": "dist"
+          "webDir": ".output/public"
           }
           EOF
 
