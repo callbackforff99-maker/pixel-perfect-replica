@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Moon, Wind, Smile, Bell, Sun, Clock3,
+  Moon, Wind, Smile, Bell, Sun, Clock3, Heart, Droplets, Phone,
   ChevronRight, BedDouble, Activity, Sparkles
 } from "lucide-react";
 import { Shell } from "@/components/Shell";
@@ -93,6 +93,22 @@ function Home() {
           <div className="pointer-events-none absolute -right-7 -top-5 flex h-44 w-44 items-center justify-center rounded-full bg-white/30 dark:bg-white/5">
             <Moon size={86} strokeWidth={1} className="opacity-40" />
           </div>
+        </section>
+
+        {/* DAILY CARE — promoted from Settings */}
+        <section className="rounded-3xl border border-emerald-500/15 bg-card p-4">
+          <div className="mb-3 flex items-center gap-3">
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/10 text-primary">
+              <Heart size={21} />
+            </span>
+            <div>
+              <h2 className="font-bold">Daily Care</h2>
+              <p className="text-xs text-muted-foreground">Small tools for your everyday wellbeing</p>
+            </div>
+          </div>
+          <a href="#/daily" className="flex items-center justify-between rounded-2xl bg-secondary/70 p-4 text-sm font-semibold text-primary">
+            Open Daily Care <ChevronRight size={18} />
+          </a>
         </section>
 
         {/* QUICK ACTIONS */}
