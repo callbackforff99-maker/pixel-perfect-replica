@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { routeTree } from "@/routeTree.gen";
 
 describe("App routing", () => {
-  const paths = ["/", "/sleep", "/calm", "/journal", "/meds", "/settings", "/daily"];
+  const paths = ["/", "/sleep", "/calm", "/journal", "/meds", "/settings", "/daily", "/emergency"];
 
   it.each(paths)("matches %s to a page instead of the not-found route", (path) => {
     const router = createRouter({
