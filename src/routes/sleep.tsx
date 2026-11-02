@@ -1,4 +1,3 @@
-```tsx
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import {
@@ -19,7 +18,7 @@ import {
   BedDouble,
 } from "lucide-react";
 import { PageHead, Rating, Shell } from "@/components/Shell";
-import { nowISO, toLocalInput, uid, update, useDB } from "@/lib/store";
+import { localDate, nowISO, toLocalInput, uid, update, useDB } from "@/lib/store";
 import {
   durationMinutes,
   fmtDuration,
@@ -79,6 +78,16 @@ function SleepPage() {
         form.awakenings === "" ? undefined : Number(form.awakenings),
       quality: form.quality,
     };
+
+    const logDay = localDate(new Date(input.end));
+    const alreadyLogged = db.sleep.some(
+      (log) => log.id !== editing && localDate(new Date(log.end)) === logDay,
+    );
+    if (alreadyLogged) {
+      setErr("Only one sleep log is allowed per day. Edit the existing day's log instead.");
+      setMsg(null);
+      return;
+    }
 
     const validation = validateSleep(
       input,
@@ -152,12 +161,20 @@ function SleepPage() {
     });
   };
 
-  const del = (id: string) =>
-    confirm("Delete this sleep log?") &&
-    update((d) => ({
-      ...d,
-      sleep: d.sleep.filter((log) => log.id !== id),
-    }));
+  const del = (id: string) => {
+    const savedPin = window.localStorage.getItem("sleeepx.pin.v1");
+    if (!savedPin) {
+      alert("Set a PIN in Settings before deleting sleep data.");
+      return;
+    }
+    const enteredPin = window.prompt("Enter your SleeepX PIN to delete this day's sleep data.");
+    if (enteredPin !== savedPin) {
+      alert("Incorrect PIN. Nothing was deleted.");
+      return;
+    }
+    if (!confirm("Delete this day's sleep data? This cannot be undone.")) return;
+    update((d) => ({ ...d, sleep: d.sleep.filter((log) => log.id !== id) }));
+  };
 
   const stats = sleepStats(db.sleep, range);
 
@@ -586,4 +603,3 @@ function Stat({ k, v }: { k: string; v: string }) {
     </div>
   );
 }
-```
