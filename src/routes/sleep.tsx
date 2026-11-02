@@ -1,4 +1,3 @@
-```tsx
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import {
@@ -586,4 +585,3 @@ function Stat({ k, v }: { k: string; v: string }) {
     </div>
   );
 }
-```
