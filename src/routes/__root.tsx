@@ -118,6 +118,7 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const [stage, setStage] = useState<"splash" | "pin" | "app">("splash");
+  const [changingPin, setChangingPin] = useState(false);
   const [savedPin, setSavedPin] = useState<string | null>(null);
   const [pin, setPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
@@ -125,8 +126,10 @@ function RootComponent() {
 
   useEffect(() => {
     setSavedPin(localStorage.getItem("sleeepx.pin.v1"));
+    const managePin = () => { setChangingPin(true); setPin(""); setConfirmPin(""); setMessage(""); setStage("pin"); };
+    window.addEventListener("sleeepx:manage-pin", managePin);
     const timer = window.setTimeout(() => setStage("pin"), 1600);
-    return () => window.clearTimeout(timer);
+    return () => { window.clearTimeout(timer); window.removeEventListener("sleeepx:manage-pin", managePin); };
   }, []);
 
   const submitPin = () => {
@@ -134,13 +137,14 @@ function RootComponent() {
       setMessage("Enter a 4–6 digit PIN.");
       return;
     }
-    if (!savedPin) {
+    if (!savedPin || changingPin) {
       if (pin !== confirmPin) {
         setMessage("PINs do not match. Try again.");
         return;
       }
       localStorage.setItem("sleeepx.pin.v1", pin);
       setSavedPin(pin);
+      setChangingPin(false);
       setMessage("");
       setStage("app");
       return;
@@ -169,9 +173,9 @@ function RootComponent() {
         ) : (
           <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-[#0c120e] p-6 shadow-2xl">
             <p className="text-xs font-bold tracking-[0.25em] text-emerald-300">SLEEEPX SECURITY</p>
-            <h1 className="mt-3 text-2xl font-bold">{savedPin ? "Welcome back" : "Set up your PIN"}</h1>
+            <h1 className="mt-3 text-2xl font-bold">{changingPin ? "Change your PIN" : savedPin ? "Welcome back" : "Set up your PIN"}</h1>
             <p className="mt-2 text-sm text-white/60">
-              {savedPin ? "Enter your PIN to open your private space." : "Create a 4–6 digit PIN to protect access to this app."}
+              {changingPin ? "Choose a new 4–6 digit PIN." : savedPin ? "Enter your PIN to open your private space." : "Create a 4–6 digit PIN to protect access to this app."}
             </p>
             <input
               aria-label="PIN"
@@ -199,7 +203,7 @@ function RootComponent() {
             )}
             {message && <p className="mt-3 text-sm text-red-300">{message}</p>}
             <button onClick={submitPin} className="mt-5 w-full rounded-2xl bg-emerald-400 px-4 py-4 font-bold text-[#061009]">
-              {savedPin ? "Unlock SleeepX" : "Save PIN & continue"}
+              {changingPin ? "Save new PIN" : savedPin ? "Unlock SleeepX" : "Save PIN & continue"}
             </button>
             <p className="mt-4 text-center text-xs text-white/35">PIN is stored locally on this device.</p>
           </div>
