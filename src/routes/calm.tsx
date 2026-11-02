@@ -254,7 +254,7 @@ function Calm() {
                 <div className="h-2 overflow-hidden rounded-full bg-secondary">
                   <div
                     className="h-full rounded-full bg-primary transition-all duration-500"
-                    style={{ width: `${progress}%` }}
+                    style={{ width: String(progress) + "%" }}
                   />
                 </div>
               </div>
