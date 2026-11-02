@@ -2,7 +2,6 @@ import { Link } from "@tanstack/react-router";
 import { Home, Moon, Wind, NotebookPen, Settings } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
 import { dbError } from "@/lib/store";
-import { PinSecurity } from "@/components/PinSecurity";
 
 const tabs = [
   { to: "/", label: "Home", icon: Home },
