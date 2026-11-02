@@ -111,6 +111,13 @@ function Home() {
           </a>
         </section>
 
+        {/* EMERGENCY CONTACTS — separate from Daily Care */}
+        <Link to="/emergency" className="card-x flex items-center gap-3 p-4">
+          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-600"><Phone size={21} /></span>
+          <span className="flex-1"><span className="block font-bold">Emergency contacts</span><span className="block text-xs text-muted-foreground">Call one of your five trusted contacts</span></span>
+          <ChevronRight size={18} className="text-muted-foreground" />
+        </Link>
+
         {/* MEDICATION REMINDERS — quick access from Home */}
         <section className="card-x space-y-3 p-4">
           <div className="flex items-center justify-between gap-3">
