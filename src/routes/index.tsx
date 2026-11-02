@@ -1,6 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Moon, Wind, Smile, Bell, Sun, Clock3,
+  Moon, Wind, Smile, Bell, Sun, Clock3, Heart, Droplets, Phone,
   ChevronRight, BedDouble, Activity, Sparkles
 } from "lucide-react";
 import { Shell } from "@/components/Shell";
@@ -81,17 +81,57 @@ function Home() {
               Small steps towards a healthier sleep routine.
             </p>
 
-            <a href="#/sleep"
+            <Link
+              to="/sleep"
               className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#78977e] px-5 py-3 text-sm font-semibold text-white"
             >
               Track your sleep
               <ChevronRight size={16} />
-            </a>
+            </Link>
           </div>
 
           <div className="pointer-events-none absolute -right-7 -top-5 flex h-44 w-44 items-center justify-center rounded-full bg-white/30 dark:bg-white/5">
             <Moon size={86} strokeWidth={1} className="opacity-40" />
           </div>
+        </section>
+
+        {/* DAILY CARE — promoted from Settings */}
+        <section className="rounded-3xl border border-emerald-500/15 bg-card p-4">
+          <div className="mb-3 flex items-center gap-3">
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/10 text-primary">
+              <Heart size={21} />
+            </span>
+            <div>
+              <h2 className="font-bold">Daily Care</h2>
+              <p className="text-xs text-muted-foreground">Small tools for your everyday wellbeing</p>
+            </div>
+          </div>
+          <a href="#/daily" className="flex items-center justify-between rounded-2xl bg-secondary/70 p-4 text-sm font-semibold text-primary">
+            Open Daily Care <ChevronRight size={18} />
+          </a>
+        </section>
+
+        {/* EMERGENCY CONTACTS — separate from Daily Care */}
+        <Link to="/emergency" className="card-x flex items-center gap-3 p-4">
+          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-600"><Phone size={21} /></span>
+          <span className="flex-1"><span className="block font-bold">Emergency contacts</span><span className="block text-xs text-muted-foreground">Call one of your five trusted contacts</span></span>
+          <ChevronRight size={18} className="text-muted-foreground" />
+        </Link>
+
+        {/* MEDICATION REMINDERS — quick access from Home */}
+        <section className="card-x space-y-3 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Bell size={21} /></span>
+              <div><h2 className="font-bold">Medication reminders</h2><p className="text-xs text-muted-foreground">{db.meds.filter(m => m.enabled).length} active reminders</p></div>
+            </div>
+            <Link to="/meds" className="rounded-xl bg-secondary px-3 py-2 text-sm font-semibold text-primary">Open</Link>
+          </div>
+          {db.meds.filter(m => m.enabled).length ? db.meds.filter(m => m.enabled).slice(0,3).map(m => (
+            <div key={m.id} className="flex items-center justify-between rounded-xl bg-secondary/60 px-3 py-2 text-sm">
+              <span className="font-medium">{m.name}</span><span className="text-muted-foreground">{m.times.join(" · ")}</span>
+            </div>
+          )) : <p className="text-sm text-muted-foreground">No reminders yet. Add your prescribed schedule.</p>}
         </section>
 
         {/* QUICK ACTIONS */}
@@ -122,14 +162,16 @@ function Home() {
                 color: "bg-[#f1ecdf]",
               },
             ].map(({ to, label, icon: Icon, color }) => (
-              <a key={to} href={`#${to}`}
+              <Link
+                key={to}
+                to={to}
                 className="flex min-h-[108px] flex-col items-center justify-center gap-3 rounded-2xl border border-border/70 bg-card p-3 text-center transition-transform active:scale-95"
               >
                 <span className={`flex h-12 w-12 items-center justify-center rounded-2xl ${color}`}>
                   <Icon className="h-6 w-6 text-[#66866d]" />
                 </span>
                 <span className="text-xs font-semibold">{label}</span>
-              </a>
+              </Link>
             ))}
           </div>
         </section>
@@ -139,9 +181,9 @@ function Home() {
           <section>
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-base font-bold">Sleep overview</h2>
-              <a href="#/sleep" className="text-xs font-semibold text-primary">
+              <Link to="/sleep" className="text-xs font-semibold text-primary">
                 View all
-              </a>
+              </Link>
             </div>
 
             <div className="rounded-3xl border border-border/70 bg-card p-5">
@@ -174,12 +216,13 @@ function Home() {
               </div>
 
               {!last && (
-                <a href="#/sleep"
+                <Link
+                  to="/sleep"
                   className="mt-4 flex items-center justify-between rounded-xl bg-secondary p-3 text-sm font-semibold text-primary"
                 >
                   Add your first sleep log
                   <ChevronRight size={17} />
-                </a>
+                </Link>
               )}
             </div>
           </section>

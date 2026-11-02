@@ -1,18 +1,24 @@
 import { QueryClient } from "@tanstack/react-query";
-import { createHashHistory, createRouter } from "@tanstack/react-router";
+import {
+  createHashHistory,
+  createMemoryHistory,
+  createRouter,
+} from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 
 export const getRouter = () => {
   const queryClient = new QueryClient();
 
   // Hash history is only available in the browser. During SSR/prerender,
-  // let TanStack Start provide its server history to avoid window access.
+  // use memory history so the build can render pages without window.location.
   const history =
-    typeof window !== "undefined" ? createHashHistory() : undefined;
+    typeof window !== "undefined"
+      ? createHashHistory()
+      : createMemoryHistory({ initialEntries: ["/"] });
 
   const router = createRouter({
     routeTree,
-    ...(history ? { history } : {}),
+    history,
     context: { queryClient },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,

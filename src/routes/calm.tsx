@@ -1,4 +1,3 @@
-```tsx
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -471,4 +470,3 @@ className={"text-sm " + (isChecked ? "text-muted-foreground line-through" : "fon
     </Shell>
   );
 }
-```
