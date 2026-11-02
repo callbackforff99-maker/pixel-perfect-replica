@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import { Home, Moon, Wind, NotebookPen, Settings } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
 import { dbError } from "@/lib/store";
@@ -33,22 +32,21 @@ export function Shell({ children }: { children: ReactNode }) {
         <ul className="mx-auto grid max-w-md grid-cols-5 px-2">
           {tabs.map(({ to, label, icon: Icon }) => (
             <li key={to}>
-              <Link
-                to={to}
-                activeOptions={{ exact: to === "/" }}
-                className="group relative flex min-h-[68px] flex-col items-center justify-center gap-1.5 py-2 text-[11px] font-medium text-muted-foreground transition-colors data-[status=active]:text-primary"
+              <a
+                href={`#${to}`}
+                className="group relative flex min-h-[68px] flex-col items-center justify-center gap-1.5 py-2 text-[11px] font-medium text-muted-foreground transition-colors"
               >
-                <span className="absolute top-0 h-[3px] w-8 rounded-b-full bg-primary opacity-0 transition-opacity group-data-[status=active]:opacity-100" />
+                <span className="absolute top-0 h-[3px] w-8 rounded-b-full bg-primary opacity-0 transition-opacity opacity-0" />
 
-                <span className="flex h-9 w-11 items-center justify-center rounded-2xl transition-all group-data-[status=active]:bg-secondary">
+                <span className="flex h-9 w-11 items-center justify-center rounded-2xl transition-all ">
                   <Icon
-                    className="h-[21px] w-[21px] transition-transform group-data-[status=active]:scale-110"
+                    className="h-[21px] w-[21px] transition-transform "
                     strokeWidth={2}
                   />
                 </span>
 
                 <span>{label}</span>
-              </Link>
+              </a>
             </li>
           ))}
         </ul>
