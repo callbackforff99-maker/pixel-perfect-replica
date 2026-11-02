@@ -181,7 +181,7 @@ function RootComponent() {
             <p className="text-xs font-bold tracking-[0.25em] text-emerald-300">SLEEEPX SECURITY</p>
             <h1 className="mt-3 text-2xl font-bold">{changingPin && !pinVerified ? "Verify current PIN" : changingPin ? "Change your PIN" : savedPin ? "Welcome back" : "Set up your PIN"}</h1>
             <p className="mt-2 text-sm text-white/60">
-              {changingPin && !pinVerified ? "Enter your current PIN before changing it." : changingPin ? "Choose a new 4–6 digit PIN." : savedPin ? "Enter your PIN to open your private space." : "Create a 4–6 digit PIN to protect access to this app."}
+              {changingPin && !pinVerified ? "Enter your current PIN before changing it." : changingPin ? "Choose a new 4–6 digit PIN." : savedPin ? "Enter your PIN to open your private space." : "Create a 4–6 digit PIN, or skip and set one later in Settings."}
             </p>
             <input
               aria-label="PIN"
