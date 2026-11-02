@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { Home, Moon, Wind, NotebookPen, Settings } from "lucide-react";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { dbError } from "@/lib/store";
+import { PinSecurity } from "@/components/PinSecurity";
 
 const tabs = [
   { to: "/", label: "Home", icon: Home },
@@ -12,10 +13,13 @@ const tabs = [
 ] as const;
 
 export function Shell({ children }: { children: ReactNode }) {
+  useEffect(() => { document.documentElement.classList.toggle("dark", localStorage.getItem("sleeepx.theme") === "dark"); }, []);
   return (
-    <div className="mx-auto min-h-screen max-w-md pb-28 pt-[max(env(safe-area-inset-top),1rem)]">
+    <div className="relative mx-auto min-h-screen max-w-md pb-28 pt-[max(env(safe-area-inset-top),1rem)]">
+      <span aria-hidden="true" className="pointer-events-none fixed bottom-28 left-1 z-10 origin-bottom-left -rotate-90 text-[9px] font-semibold tracking-[0.18em] text-muted-foreground/70">Developed by ZEROX</span>
       {dbError && <div className="mx-4 mb-3 rounded-xl border border-destructive bg-destructive/15 p-3 text-sm">{dbError}</div>}
       {children}
+      <PinSecurity />
       <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur">
         <ul className="mx-auto grid max-w-md grid-cols-5">
           {tabs.map(({ to, label, icon: Icon }) => (
