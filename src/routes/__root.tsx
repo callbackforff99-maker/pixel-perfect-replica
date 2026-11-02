@@ -211,6 +211,11 @@ function RootComponent() {
             <button onClick={submitPin} className="mt-5 w-full rounded-2xl bg-emerald-400 px-4 py-4 font-bold text-[#061009]">
               {changingPin && !pinVerified ? "Verify PIN" : changingPin ? "Save new PIN" : savedPin ? "Unlock SleeepX" : "Save PIN & continue"}
             </button>
+            {!savedPin && !changingPin && (
+              <button onClick={() => { setStage("app"); setMessage(""); }} className="mt-3 w-full rounded-2xl border border-white/15 px-4 py-3 text-sm font-semibold text-white/80">
+                Skip for now
+              </button>
+            )}
             <p className="mt-4 text-center text-xs text-white/35">PIN is stored locally on this device.</p>
           </div>
         )}
