@@ -483,7 +483,7 @@ function SettingsPage() {
             <button
               onClick={() =>
                 download(
-                  `sleeepx-sleep-${localDate()}.csv`,
+                  "sleeepx-sleep-" + localDate() + ".csv",
                   sleepCSV(db.sleep),
                   "text/csv"
                 )
