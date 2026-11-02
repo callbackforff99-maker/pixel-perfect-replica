@@ -111,6 +111,22 @@ function Home() {
           </a>
         </section>
 
+        {/* MEDICATION REMINDERS — quick access from Home */}
+        <section className="card-x space-y-3 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Bell size={21} /></span>
+              <div><h2 className="font-bold">Medication reminders</h2><p className="text-xs text-muted-foreground">{db.meds.filter(m => m.enabled).length} active reminders</p></div>
+            </div>
+            <Link to="/meds" className="rounded-xl bg-secondary px-3 py-2 text-sm font-semibold text-primary">Open</Link>
+          </div>
+          {db.meds.filter(m => m.enabled).length ? db.meds.filter(m => m.enabled).slice(0,3).map(m => (
+            <div key={m.id} className="flex items-center justify-between rounded-xl bg-secondary/60 px-3 py-2 text-sm">
+              <span className="font-medium">{m.name}</span><span className="text-muted-foreground">{m.times.join(" · ")}</span>
+            </div>
+          )) : <p className="text-sm text-muted-foreground">No reminders yet. Add your prescribed schedule.</p>}
+        </section>
+
         {/* QUICK ACTIONS */}
         <section>
           <div className="mb-3 flex items-center justify-between">
