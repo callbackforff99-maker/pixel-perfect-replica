@@ -8,7 +8,7 @@ import {
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -117,6 +117,96 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const [stage, setStage] = useState<"splash" | "pin" | "app">("splash");
+  const [savedPin, setSavedPin] = useState<string | null>(null);
+  const [pin, setPin] = useState("");
+  const [confirmPin, setConfirmPin] = useState("");
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    setSavedPin(localStorage.getItem("sleeepx.pin.v1"));
+    const timer = window.setTimeout(() => setStage("pin"), 1600);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  const submitPin = () => {
+    if (!/^\d{4,6}$/.test(pin)) {
+      setMessage("Enter a 4–6 digit PIN.");
+      return;
+    }
+    if (!savedPin) {
+      if (pin !== confirmPin) {
+        setMessage("PINs do not match. Try again.");
+        return;
+      }
+      localStorage.setItem("sleeepx.pin.v1", pin);
+      setSavedPin(pin);
+      setMessage("");
+      setStage("app");
+      return;
+    }
+    if (pin !== savedPin) {
+      setMessage("Incorrect PIN. Try again.");
+      setPin("");
+      return;
+    }
+    setMessage("");
+    setStage("app");
+  };
+
+  if (stage !== "app") {
+    return (
+      <div className="fixed inset-0 z-50 flex min-h-screen items-center justify-center bg-[#050806] px-6 text-white">
+        {stage === "splash" ? (
+          <div className="text-center">
+            <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl border border-emerald-400/30 bg-emerald-400/10 text-emerald-300">
+              <span className="text-3xl font-extrabold">S</span>
+            </div>
+            <p className="text-xs font-bold tracking-[0.35em] text-emerald-300">SLEEEPX</p>
+            <h1 className="mt-3 text-2xl font-extrabold tracking-wide">Rest. Reset. Rise.</h1>
+            <p className="mt-8 text-[10px] tracking-[0.25em] text-white/45">DEVELOPED BY ZEROX</p>
+          </div>
+        ) : (
+          <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-[#0c120e] p-6 shadow-2xl">
+            <p className="text-xs font-bold tracking-[0.25em] text-emerald-300">SLEEEPX SECURITY</p>
+            <h1 className="mt-3 text-2xl font-bold">{savedPin ? "Welcome back" : "Set up your PIN"}</h1>
+            <p className="mt-2 text-sm text-white/60">
+              {savedPin ? "Enter your PIN to open your private space." : "Create a 4–6 digit PIN to protect access to this app."}
+            </p>
+            <input
+              aria-label="PIN"
+              type="password"
+              inputMode="numeric"
+              autoComplete="off"
+              maxLength={6}
+              value={pin}
+              onChange={(e) => { setPin(e.target.value.replace(/\D/g, "").slice(0, 6)); setMessage(""); }}
+              placeholder="Enter PIN"
+              className="mt-5 w-full rounded-2xl border border-white/10 bg-black px-4 py-4 text-center text-xl tracking-[0.5em] text-white outline-none focus:border-emerald-400"
+            />
+            {!savedPin && (
+              <input
+                aria-label="Confirm PIN"
+                type="password"
+                inputMode="numeric"
+                autoComplete="off"
+                maxLength={6}
+                value={confirmPin}
+                onChange={(e) => { setConfirmPin(e.target.value.replace(/\D/g, "").slice(0, 6)); setMessage(""); }}
+                placeholder="Confirm PIN"
+                className="mt-3 w-full rounded-2xl border border-white/10 bg-black px-4 py-4 text-center text-xl tracking-[0.5em] text-white outline-none focus:border-emerald-400"
+              />
+            )}
+            {message && <p className="mt-3 text-sm text-red-300">{message}</p>}
+            <button onClick={submitPin} className="mt-5 w-full rounded-2xl bg-emerald-400 px-4 py-4 font-bold text-[#061009]">
+              {savedPin ? "Unlock SleeepX" : "Save PIN & continue"}
+            </button>
+            <p className="mt-4 text-center text-xs text-white/35">PIN is stored locally on this device.</p>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
