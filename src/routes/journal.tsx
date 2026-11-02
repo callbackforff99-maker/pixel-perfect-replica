@@ -40,6 +40,38 @@ type Form = {
 
 const blank = (): Form => ({ date: localDate(), text: "" });
 
+const EMOJIS = {
+  mood: ["😞", "😕", "😐", "🙂", "😄"],
+  stress: ["😌", "🙂", "😐", "😟", "😣"],
+  energy: ["🪫", "😴", "😐", "🙂", "⚡"],
+} as const;
+
+function EmojiRating({ value, onChange, label, kind }: {
+  value?: number;
+  onChange: (value?: number) => void;
+  label: string;
+  kind: keyof typeof EMOJIS;
+}) {
+  return (
+    <div>
+      <p className="mb-2 text-sm font-medium text-muted-foreground">{label}</p>
+      <div className="flex gap-2">
+        {EMOJIS[kind].map((emoji, index) => {
+          const score = index + 1;
+          return (
+            <button key={emoji} type="button" aria-label={`${label}: ${score} of 5`}
+              aria-pressed={value === score}
+              onClick={() => onChange(value === score ? undefined : score)}
+              className="flex h-12 flex-1 items-center justify-center rounded-xl border border-input bg-secondary text-2xl transition-all aria-pressed:border-primary aria-pressed:bg-primary/15">
+              {emoji}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function Journal() {
   const db = useDB();
   const [f, setF] = useState<Form>(blank);
@@ -196,7 +228,8 @@ function Journal() {
 
           <div className="space-y-4">
             <div className="rounded-2xl bg-secondary/40 p-4">
-              <Rating
+              <EmojiRating
+                kind="mood"
                 label="How is your mood?"
                 value={f.mood}
                 onChange={(mood) => setF({ ...f, mood })}
@@ -204,7 +237,8 @@ function Journal() {
             </div>
 
             <div className="rounded-2xl bg-secondary/40 p-4">
-              <Rating
+              <EmojiRating
+                kind="stress"
                 label="Stress level (optional)"
                 value={f.stress}
                 onChange={(stress) => setF({ ...f, stress })}
@@ -212,7 +246,8 @@ function Journal() {
             </div>
 
             <div className="rounded-2xl bg-secondary/40 p-4">
-              <Rating
+              <EmojiRating
+                kind="energy"
                 label="Energy level (optional)"
                 value={f.energy}
                 onChange={(energy) => setF({ ...f, energy })}
@@ -392,9 +427,9 @@ function Journal() {
                     </p>
 
                     <p className="mt-2 text-sm text-muted-foreground">
-                      Mood <span className="font-semibold text-foreground">{m.mood}/5</span>
-{m.stress ? " · Stress " + m.stress + "/5" : ""}
-{m.energy ? " · Energy " + m.energy + "/5" : ""}
+                      Mood <span className="text-xl" aria-label={`Mood ${m.mood} out of 5`}>{["", "😞", "😕", "😐", "🙂", "😄"][m.mood]}</span>
+{m.stress ? " · Stress " + ["", "😌", "🙂", "😐", "😟", "😣"][m.stress] : ""}
+{m.energy ? " · Energy " + ["", "🪫", "😴", "😐", "🙂", "⚡"][m.energy] : ""}
                     </p>
                   </div>
 
