@@ -469,7 +469,7 @@ function SettingsPage() {
             <button
               onClick={() =>
                 download(
-                  `sleeepx-${localDate()}.json`,
+                  "sleeepx-" + localDate() + ".json",
                   JSON.stringify(db, null, 2),
                   "application/json"
                 )
