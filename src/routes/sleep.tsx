@@ -458,7 +458,7 @@ function SleepPage() {
                           borderRadius: 12,
                         }}
                         formatter={(value) => [
-                          `${value} hours`,
+                         String(value) + " hours",
                           "Sleep",
                         ]}
                       />
