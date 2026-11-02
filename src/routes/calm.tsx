@@ -120,7 +120,7 @@ function Calm() {
     setElapsed(0);
   }
 
-  const time = `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, "0")}`;
+ const time = String(Math.floor(remaining / 60)) + ":" + String(remaining % 60).padStart(2, "0");
 
   const completedSessions = db.breath.filter((b) => b.completed).length;
 
