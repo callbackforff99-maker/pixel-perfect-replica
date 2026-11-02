@@ -425,21 +425,13 @@ function Calm() {
                   />
 
                   <span
-                    className={`flex h-5 w-5 items-center justify-center rounded-md border ${
-                      isChecked
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border"
-                    }`}
+className={"flex h-5 w-5 items-center justify-center rounded-md border " + (isChecked ? "border-primary bg-primary text-primary-foreground" : "border-border")}
                   >
                     {isChecked && <Check size={13} />}
                   </span>
 
                   <span
-                    className={`text-sm ${
-                      isChecked
-                        ? "text-muted-foreground line-through"
-                        : "font-medium"
-                    }`}
+className={"text-sm " + (isChecked ? "text-muted-foreground line-through" : "font-medium")}
                   >
                     {item}
                   </span>
