@@ -9,7 +9,7 @@ import {
   YAxis,
 } from "recharts";
 import { Pencil, Trash2, BookHeart, Sparkles, CalendarDays } from "lucide-react";
-import { PageHead, Rating, Shell } from "@/components/Shell";
+import { PageHead, Shell } from "@/components/Shell";
 import {
   localDate,
   nowISO,
