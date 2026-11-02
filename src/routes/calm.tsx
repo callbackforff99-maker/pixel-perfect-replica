@@ -213,9 +213,7 @@ function Calm() {
                     transform: "scale(.65)",
                     animation:
                       state === "running"
-                        ? `${phase === "in" ? "breathe-in" : "breathe-out"} ${
-                            phase === "in" ? IN : OUT
-                          }s ease-in-out forwards`
+? (phase === "in" ? "breathe-in " + IN : "breathe-out " + OUT) + "s ease-in-out forwards"
                         : undefined,
                     animationPlayState: state === "paused" ? "paused" : "running",
                   }}
