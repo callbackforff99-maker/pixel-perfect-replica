@@ -540,7 +540,7 @@ function SleepPage() {
                     {new Date(log.end).toLocaleTimeString([], {
                       timeStyle: "short",
                     })}
-                    {log.quality ? ` · quality ${log.quality}/5` : ""}
+                    {log.quality ? " · quality " + log.quality + "/5" : ""}
                   </p>
 
                   {log.notes && (
