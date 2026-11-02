@@ -98,34 +98,6 @@ function SettingsPage() {
           <Sparkles className="absolute -bottom-4 -right-3 h-24 w-24 text-primary/10" />
         </section>
 
-        {/* Daily Care */}
-        <section className="card-x space-y-3 p-5">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary text-primary">
-              <Heart size={20} />
-            </div>
-
-            <div>
-              <h2 className="font-bold">Daily Care</h2>
-              <p className="text-xs text-muted-foreground">
-                Everyday wellbeing tools
-              </p>
-            </div>
-          </div>
-
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            Emergency contacts, water tracker and your wellbeing report.
-          </p>
-
-          <Link
-            to="/daily"
-            className="flex items-center justify-between rounded-2xl bg-secondary/70 p-4 text-sm font-semibold text-primary"
-          >
-            Open Daily Care
-            <ChevronRight size={18} />
-          </Link>
-        </section>
-
         {/* Routine */}
         <section className="card-x space-y-5 p-5">
           <div className="flex items-center gap-3">
