@@ -15,6 +15,7 @@ import { Route as JournalRouteImport } from './routes/journal'
 import { Route as MedsRouteImport } from './routes/meds'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SleepRouteImport } from './routes/sleep'
+import { Route as DailyRouteImport } from './routes/daily'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -41,6 +42,11 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DailyRoute = DailyRouteImport.update({
+  id: '/daily',
+  path: '/daily',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SleepRoute = SleepRouteImport.update({
   id: '/sleep',
   path: '/sleep',
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/meds': typeof MedsRoute
   '/settings': typeof SettingsRoute
   '/sleep': typeof SleepRoute
+  '/daily': typeof DailyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/meds': typeof MedsRoute
   '/settings': typeof SettingsRoute
   '/sleep': typeof SleepRoute
+  '/daily': typeof DailyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,13 +79,14 @@ export interface FileRoutesById {
   '/meds': typeof MedsRoute
   '/settings': typeof SettingsRoute
   '/sleep': typeof SleepRoute
+  '/daily': typeof DailyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/calm' | '/journal' | '/meds' | '/settings' | '/sleep'
+  fullPaths: '/' | '/calm' | '/journal' | '/meds' | '/settings' | '/sleep' | '/daily'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/calm' | '/journal' | '/meds' | '/settings' | '/sleep'
-  id: '__root__' | '/' | '/calm' | '/journal' | '/meds' | '/settings' | '/sleep'
+  to: '/' | '/calm' | '/journal' | '/meds' | '/settings' | '/sleep' | '/daily'
+  id: '__root__' | '/' | '/calm' | '/journal' | '/meds' | '/settings' | '/sleep' | '/daily'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -87,6 +96,7 @@ export interface RootRouteChildren {
   MedsRoute: typeof MedsRoute
   SettingsRoute: typeof SettingsRoute
   SleepRoute: typeof SleepRoute
+  DailyRoute: typeof DailyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -126,6 +136,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/daily': {
+      id: '/daily'
+      path: '/daily'
+      fullPath: '/daily'
+      preLoaderRoute: typeof DailyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sleep': {
       id: '/sleep'
       path: '/sleep'
@@ -143,6 +160,7 @@ const rootRouteChildren: RootRouteChildren = {
   MedsRoute: MedsRoute,
   SettingsRoute: SettingsRoute,
   SleepRoute: SleepRoute,
+  DailyRoute: DailyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
