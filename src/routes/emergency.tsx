@@ -7,12 +7,13 @@ export const Route = createFileRoute("/emergency")({ component: EmergencyContact
 type Contact = { name: string; phone: string };
 const KEY = "sleeepx.emergency.contacts.v1";
 function readContacts(): Contact[] {
-  try { return JSON.parse(localStorage.getItem(KEY) || "null") ?? Array.from({ length: 5 }, () => ({ name: "", phone: "" })); }
+  if (typeof window === "undefined") return Array.from({ length: 5 }, () => ({ name: "", phone: "" }));
+  try { return JSON.parse(window.localStorage.getItem(KEY) || "null") ?? Array.from({ length: 5 }, () => ({ name: "", phone: "" })); }
   catch { return Array.from({ length: 5 }, () => ({ name: "", phone: "" })); }
 }
 function EmergencyContacts() {
   const [contacts, setContacts] = useState<Contact[]>(readContacts);
-  const save = (next: Contact[]) => { setContacts(next); localStorage.setItem(KEY, JSON.stringify(next)); };
+  const save = (next: Contact[]) => { setContacts(next); window.localStorage.setItem(KEY, JSON.stringify(next)); };
   const call = (i: number) => { const phone = contacts[i]?.phone.trim(); if (phone) window.location.href = `tel:${phone.replace(/[^+\\d]/g, "")}`; };
   return <Shell><PageHead title="Emergency contacts" sub="Five trusted people, ready to call."/><div className="space-y-4 px-4 pb-6">
     <p className="flex gap-2 rounded-xl border border-primary/30 bg-accent p-3 text-sm"><ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-primary"/> Tap the phone button to open your phone dialer. If the first person doesn't answer, return and call the next contact.</p>
