@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ChevronRight, Pill } from "lucide-react";
+import { ChevronRight, Pill, LockKeyhole, Moon } from "lucide-react";
 import { PageHead, Shell } from "@/components/Shell";
 import { download, localDate, sleepCSV, update, useDB, wipe, type Settings } from "@/lib/store";
 
@@ -30,6 +30,11 @@ function SettingsPage() {
     <Shell>
       <PageHead title="Settings" />
       <div className="space-y-4 px-4">
+        <section className="card-x space-y-2">
+          <h2 className="font-semibold">Daily Care</h2>
+          <p className="text-sm text-muted-foreground">Emergency contacts, 250 ml water tracker and 30-day wellbeing PDF report.</p>
+          <Link to="/daily" className="inline-flex rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Open Daily Care</Link>
+        </section>
         <section className="card-x space-y-3">
           <h2 className="font-semibold">Routine & reminders</h2>
           <div className="grid grid-cols-2 gap-3">
@@ -65,6 +70,16 @@ function SettingsPage() {
           <p className="text-xs text-muted-foreground">Delivery depends on the phone. On HyperOS, set battery to "No restrictions" and enable Autostart so reminders aren't delayed. In this preview, reminders are saved but not delivered — they fire only in the installed Android app.</p>
         </section>
 
+        <section className="card-x space-y-3">
+          <h2 className="font-semibold">Privacy & appearance</h2>
+          <button type="button" onClick={() => { const dark = !document.documentElement.classList.contains("dark"); document.documentElement.classList.toggle("dark", dark); localStorage.setItem("sleeepx.theme", dark ? "dark" : "light"); }} className="flex w-full items-center gap-3 text-left">
+            <Moon className="h-5 w-5 text-primary" /><span className="flex-1"><span className="block text-sm font-medium">Light / Dark mode</span><span className="block text-xs text-muted-foreground">Switch the Sage Calm color theme</span></span><span className="rounded-full bg-secondary px-3 py-1 text-xs">Toggle</span>
+          </button>
+          <button type="button" onClick={() => window.dispatchEvent(new Event("sleeepx:manage-pin"))} className="flex w-full items-center gap-3 text-left">
+            <LockKeyhole className="h-5 w-5 text-primary" /><span className="flex-1"><span className="block text-sm font-medium">PIN Security</span><span className="block text-xs text-muted-foreground">Verify your current PIN before changing it</span></span><ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </button>
+        </section>
+
         <Link to="/meds" className="card-x flex items-center gap-3">
           <Pill className="h-5 w-5 text-primary-glow" />
           <span className="flex-1">Medication reminders</span>
@@ -83,7 +98,7 @@ function SettingsPage() {
 
         <section className="card-x space-y-3 text-sm">
           <h2 className="font-semibold">Privacy</h2>
-          <p className="text-muted-foreground">Everything stays on this device. No account, no cloud sync, no ads, no analytics. Data is stored locally but is <strong>not encrypted</strong>.</p>
+          <p className="text-muted-foreground">Everything stays on this device. No account, cloud sync, ads, or analytics. PIN protection helps control access in this app; it is not a substitute for Android device encryption.</p>
           <div className="flex flex-wrap gap-2">
             <button onClick={() => download(`sleeepx-${localDate()}.json`, JSON.stringify(db, null, 2), "application/json")} className="rounded-lg border border-border px-3 py-2">Export all (JSON)</button>
             <button onClick={() => download(`sleeepx-sleep-${localDate()}.csv`, sleepCSV(db.sleep), "text/csv")} className="rounded-lg border border-border px-3 py-2">Sleep logs (CSV)</button>
