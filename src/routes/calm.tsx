@@ -203,11 +203,11 @@ function Calm() {
                 <div className="absolute inset-7 rounded-full border border-primary/15" />
 
                 <div
-                  key={
-                    state === "running"
-                      ? `${phase}-${Math.floor(elapsed / (IN + OUT))}`
-                      : "static"
-                  }
+                 key={
+  state === "running"
+    ? phase + "-" + Math.floor(elapsed / (IN + OUT))
+    : "static"
+}
                   className="absolute inset-10 rounded-full bg-primary/20 shadow-glow"
                   style={{
                     transform: "scale(.65)",
