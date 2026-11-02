@@ -394,8 +394,8 @@ function Journal() {
 
                     <p className="mt-2 text-sm text-muted-foreground">
                       Mood <span className="font-semibold text-foreground">{m.mood}/5</span>
-                      {m.stress ? ` · Stress ${m.stress}/5` : ""}
-                      {m.energy ? ` · Energy ${m.energy}/5` : ""}
+{m.stress ? " · Stress " + m.stress + "/5" : ""}
+{m.energy ? " · Energy " + m.energy + "/5" : ""}
                     </p>
                   </div>
 
