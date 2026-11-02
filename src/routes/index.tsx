@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import {
   Moon, Wind, Smile, Bell, Sun, Clock3,
   ChevronRight, BedDouble, Activity, Sparkles
@@ -81,13 +81,12 @@ function Home() {
               Small steps towards a healthier sleep routine.
             </p>
 
-            <Link
-              to="/sleep"
+            <a href="#/sleep"
               className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#78977e] px-5 py-3 text-sm font-semibold text-white"
             >
               Track your sleep
               <ChevronRight size={16} />
-            </Link>
+            </a>
           </div>
 
           <div className="pointer-events-none absolute -right-7 -top-5 flex h-44 w-44 items-center justify-center rounded-full bg-white/30 dark:bg-white/5">
@@ -123,16 +122,14 @@ function Home() {
                 color: "bg-[#f1ecdf]",
               },
             ].map(({ to, label, icon: Icon, color }) => (
-              <Link
-                key={to}
-                to={to}
+              <a key={to} href={`#${to}`}
                 className="flex min-h-[108px] flex-col items-center justify-center gap-3 rounded-2xl border border-border/70 bg-card p-3 text-center transition-transform active:scale-95"
               >
                 <span className={`flex h-12 w-12 items-center justify-center rounded-2xl ${color}`}>
                   <Icon className="h-6 w-6 text-[#66866d]" />
                 </span>
                 <span className="text-xs font-semibold">{label}</span>
-              </Link>
+              </a>
             ))}
           </div>
         </section>
@@ -142,9 +139,9 @@ function Home() {
           <section>
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-base font-bold">Sleep overview</h2>
-              <Link to="/sleep" className="text-xs font-semibold text-primary">
+              <a href="#/sleep" className="text-xs font-semibold text-primary">
                 View all
-              </Link>
+              </a>
             </div>
 
             <div className="rounded-3xl border border-border/70 bg-card p-5">
@@ -177,13 +174,12 @@ function Home() {
               </div>
 
               {!last && (
-                <Link
-                  to="/sleep"
+                <a href="#/sleep"
                   className="mt-4 flex items-center justify-between rounded-xl bg-secondary p-3 text-sm font-semibold text-primary"
                 >
                   Add your first sleep log
                   <ChevronRight size={17} />
-                </Link>
+                </a>
               )}
             </div>
           </section>
