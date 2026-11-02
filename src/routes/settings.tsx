@@ -1,5 +1,5 @@
 ```tsx
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   ChevronRight,
@@ -118,13 +118,13 @@ function SettingsPage() {
             Emergency contacts, water tracker and your wellbeing report.
           </p>
 
-          <Link
-            to="/daily"
+          <a
+            href="#/daily"
             className="flex items-center justify-between rounded-2xl bg-secondary/70 p-4 text-sm font-semibold text-primary"
           >
             Open Daily Care
             <ChevronRight size={18} />
-          </Link>
+          </a>
         </section>
 
         {/* Routine */}
