@@ -68,7 +68,7 @@
 /* LIGHT MODE — DEFAULT */
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 
   --radius: 1.15rem;
 
@@ -102,12 +102,12 @@
   --ring: #e45170;
 
   --chart-1: #bd3654;
-  --chart-2: #a6b99c;
+  --chart-2: #d66b82;
   --chart-3: #c79b78;
   --chart-4: #8e7180;
   --chart-5: #e9b9c5;
 
-  --sidebar: #ffffff;
+  --sidebar: #211b21;
   --sidebar-foreground: #f4edf0;
   --sidebar-primary: #bd3654;
   --sidebar-primary-foreground: #ffffff;
@@ -131,7 +131,7 @@
 .dark {
   color-scheme: dark;
 
-  --background: #18221c;
+  --background: #0b0a0f;
   --foreground: #f4edf0;
 
   --card: #17131a;
@@ -148,7 +148,7 @@
   --secondary-foreground: #f0e5e9;
 
   --muted: #292229;
-  --muted-foreground: #a0afa1;
+  --muted-foreground: #b5a5ad;
 
   --accent: #3b222c;
   --accent-foreground: #f4edf0;
