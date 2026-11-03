@@ -49,8 +49,14 @@ export async function requestFirstRunPermission() {
 }
 export async function syncMedicationNotifications(meds: Medication[]) {
   if (!isNativeAndroid()) return;
+  const oldIds = readIds();
+  if (oldIds.length) await LocalNotifications.cancel({ notifications: oldIds.map(id => ({ id })) });
+
   const permission = await notificationPermission();
-  if (permission !== "granted") return;
+  if (permission !== "granted") {
+    localStorage.setItem(IDS_KEY, "[]");
+    return;
+  }
   await LocalNotifications.createChannel({
     id: "medication-reminders",
     name: "Medication reminders",
@@ -59,9 +65,6 @@ export async function syncMedicationNotifications(meds: Medication[]) {
     visibility: 1,
     vibration: true,
   });
-
-  const oldIds = readIds();
-  if (oldIds.length) await LocalNotifications.cancel({ notifications: oldIds.map(id => ({ id })) });
 
   const now = new Date();
   const pending: Array<{ id: number; title: string; body: string; schedule: { at: Date; allowWhileIdle: boolean }; channelId: string }> = [];
