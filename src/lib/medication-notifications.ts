@@ -8,7 +8,7 @@ const DAYS_AHEAD = 45;
 const MAX_PENDING = 450;
 
 function readIds(): number[] {
-  try { return JSON.parse(localStorage.getItem(IDS_KEY) || "[]"); } catch { return []; }
+  try { const value = JSON.parse(localStorage.getItem(IDS_KEY) || "[]"); return Array.isArray(value) ? value.filter((id) => Number.isInteger(id)) : []; } catch { return []; }
 }
 function notificationId(medId: string, date: string, time: string) {
   const value = medId + "|" + date + "|" + time;
@@ -51,6 +51,14 @@ export async function syncMedicationNotifications(meds: Medication[]) {
   if (!isNativeAndroid()) return;
   const permission = await notificationPermission();
   if (permission !== "granted") return;
+  await LocalNotifications.createChannel({
+    id: "medication-reminders",
+    name: "Medication reminders",
+    description: "Scheduled reminders saved in SleeepX",
+    importance: 5,
+    visibility: 1,
+    vibration: true,
+  });
 
   const oldIds = readIds();
   if (oldIds.length) await LocalNotifications.cancel({ notifications: oldIds.map(id => ({ id })) });
