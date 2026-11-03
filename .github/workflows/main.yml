@@ -2,6 +2,9 @@ name: SleeepX Android APK Build
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - sleepx/zerox-full-redesign
 
 permissions:
   contents: read
