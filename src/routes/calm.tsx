@@ -133,9 +133,9 @@ function Calm() {
       <div className="space-y-5 px-4 pb-6">
 
         {/* Intro */}
-        <section className="card-x relative overflow-hidden border-0 bg-gradient-to-br from-[#e9f0e7] via-[#f4f7f1] to-[#e3ece3] p-5 dark:from-[#26372c] dark:via-[#293a30] dark:to-[#304337]">
+        <section className="card-x relative overflow-hidden border-0 bg-gradient-to-br from-[#28151d] via-[#1b151c] to-[#111015] border border-[#47232e] p-5">
           <div className="relative z-10 flex items-start gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/70 text-primary shadow-sm dark:bg-white/10">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#2b2028] text-primary shadow-sm">
               <Wind size={22} />
             </div>
 
