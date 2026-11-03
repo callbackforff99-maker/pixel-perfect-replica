@@ -12,6 +12,7 @@ import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { requestFirstRunPermission } from "@/lib/medication-notifications";
 
 function NotFoundComponent() {
   return (
@@ -125,6 +126,10 @@ function RootComponent() {
   const [confirmPin, setConfirmPin] = useState("");
   const [message, setMessage] = useState("");
   const [splashStep, setSplashStep] = useState(0);
+
+  useEffect(() => {
+    if (stage === "app") void requestFirstRunPermission();
+  }, [stage]);
 
   useEffect(() => {
     const managePin = () => {
