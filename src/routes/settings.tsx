@@ -78,7 +78,7 @@ function SettingsPage() {
         {/* Header card */}
         <section className="card-x relative overflow-hidden border-0 bg-gradient-to-br from-[#28151d] via-[#1b151c] to-[#111015] border border-[#47232e] p-5">
           <div className="relative z-10 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/70 text-primary dark:bg-white/10">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#2b2028] text-primary">
               <Settings2 size={23} />
             </div>
 
