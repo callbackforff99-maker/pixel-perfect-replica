@@ -25,7 +25,7 @@ export type Medication = {
   enabled: boolean;
   notes?: string | undefined;
 };
-export type MedEvent = { id: string; medId: string; at: string; action: "taken" | "dismissed" | "skipped" | "missed" };
+export type MedEvent = { id: string; medId: string; at: string; action: "taken" | "dismissed" | "skipped" | "missed"; scheduledTime?: string };
 export type BreathSession = { id: string; at: string; seconds: number; completed: boolean };
 export type Settings = {
   bedtime: string;
