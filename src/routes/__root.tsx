@@ -127,7 +127,6 @@ function RootComponent() {
   const [pin, setPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
   const [message, setMessage] = useState("");
-  const [splashStep, setSplashStep] = useState(0);
 
   useEffect(() => {
     if (stage !== "app") return;
@@ -163,15 +162,10 @@ function RootComponent() {
       } else {
         setStage("pin");
       }
-    }, 8000);
-
-    const stepTimer = window.setInterval(() => {
-      setSplashStep((step) => (step + 1) % 4);
-    }, 1800);
+    }, 5200);
 
     return () => {
       window.clearTimeout(splashTimer);
-      window.clearInterval(stepTimer);
       window.removeEventListener("sleeepx:manage-pin", managePin);
     };
   }, []);
@@ -231,33 +225,18 @@ function RootComponent() {
       <div className="fixed inset-0 z-50 flex min-h-screen items-center justify-center bg-[#08070c] px-6 text-white">
         {stage === "splash" ? (
           <div className="sleeepx-splash relative w-full max-w-sm text-center">
-            <div className="sleeepx-splash-orbit sleeepx-splash-orbit-one" />
-            <div className="sleeepx-splash-orbit sleeepx-splash-orbit-two" />
-            <div className="sleeepx-splash-mark mx-auto mb-7 flex h-24 w-24 items-center justify-center rounded-[2rem] border border-[#e45170]/40 bg-[#bd3654]/10 text-[#f06a83]">
-              <span className="sleeepx-splash-letter text-4xl font-extrabold">S</span>
+            <div aria-hidden="true" className="sleeepx-eclipse">
+              <span className="sleeepx-eclipse-core" />
+              <span className="sleeepx-eclipse-halo" />
             </div>
-            <p className="sleeepx-splash-title text-xs font-extrabold tracking-[0.42em] text-[#f06a83]">
-              SLEEEPX
-            </p>
-            <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-white">
-              Rest. Reset. Rise.
-            </h1>
-            <div className="mt-9 min-h-6">
-              <p key={splashStep} className="sleeepx-splash-status text-[10px] font-semibold tracking-[0.22em] text-white/65">
-                {[
-                  "INITIALIZING ZEROX SYSTEM...",
-                  "LOADING SLEEP MODULE...",
-                  "RESTORE YOUR PEACE...",
-                  "ACCESS GRANTED.",
-                ][splashStep]}
-              </p>
+            <div className="sleeepx-wordmark-wrap">
+              <h1 className="sleeepx-wordmark">SleeepX</h1>
+              <p className="sleeepx-tagline">SLEEP <span>•</span> TRACK <span>•</span> RESTORE</p>
             </div>
-            <div className="sleeepx-splash-progress mx-auto mt-5 h-1 w-40 overflow-hidden rounded-full bg-white/10">
-              <div className="sleeepx-splash-progress-bar h-full rounded-full bg-[#e45170]" />
+            <div className="sleeepx-credit">
+              <span className="sleeepx-credit-line" />
+              <p>DEVELOPED BY ZEROX</p>
             </div>
-            <p className="mt-8 text-[10px] font-semibold tracking-[0.3em] text-white/35">
-              DEVELOPED BY ZEROX
-            </p>
           </div>
         ) : (
           <div className="w-full max-w-sm rounded-3xl border border-[#49313c] bg-[#17131a] p-6 shadow-2xl">
