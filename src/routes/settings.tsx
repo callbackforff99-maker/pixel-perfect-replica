@@ -20,6 +20,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { PageHead, Shell } from "@/components/Shell";
+import { notificationPermission, requestNotificationPermission } from "@/lib/medication-notifications";
 import {
   download,
   localDate,
@@ -55,11 +56,7 @@ function SettingsPage() {
     }));
 
   useEffect(() => {
-    setPerm(
-      typeof Notification === "undefined"
-        ? "unsupported"
-        : Notification.permission
-    );
+    void notificationPermission().then(setPerm).catch(() => setPerm("unsupported"));
   }, []);
 
   const anyReminder = s.windDown.enabled || s.morning.enabled;
@@ -233,7 +230,7 @@ function SettingsPage() {
             </div>
           </div>
 
-          {anyReminder && perm !== "granted" && (
+          {(anyReminder || db.meds.some((m) => m.enabled)) && perm !== "granted" && (
             <div className="rounded-2xl bg-secondary/70 p-4">
               <div className="flex items-center gap-2">
                 <Bell size={18} className="text-primary" />
@@ -246,18 +243,19 @@ function SettingsPage() {
                 Allow notifications so your phone can alert you about your routine.
               </p>
 
-              {perm === "default" && (
+              {(perm === "prompt" || perm === "prompt-with-rationale" || perm === "default") && (
                 <button
-                  onClick={async () =>
-                    setPerm(await Notification.requestPermission())
-                  }
+                  onClick={async () => {
+                    try { setPerm(await requestNotificationPermission()); }
+                    catch { setPerm("unsupported"); }
+                  }}
                   className="mt-3 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
                 >
                   Allow notifications
                 </button>
               )}
 
-              {perm === "denied" && (
+              {(perm === "denied" || perm === "blocked") && (
                 <p className="mt-2 text-xs text-muted-foreground">
                   Blocked. Enable later in Android Settings → Apps → SleeepX → Notifications.
                 </p>
