@@ -12,7 +12,8 @@ import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { requestFirstRunPermission } from "@/lib/medication-notifications";
+import { requestFirstRunPermission, syncMedicationNotifications } from "@/lib/medication-notifications";
+import { useDB } from "@/lib/store";
 
 function NotFoundComponent() {
   return (
@@ -118,6 +119,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const db = useDB();
   const [stage, setStage] = useState<"splash" | "pin" | "app">("splash");
   const [changingPin, setChangingPin] = useState(false);
   const [pinVerified, setPinVerified] = useState(false);
@@ -128,8 +130,12 @@ function RootComponent() {
   const [splashStep, setSplashStep] = useState(0);
 
   useEffect(() => {
-    if (stage === "app") void requestFirstRunPermission();
-  }, [stage]);
+    if (stage !== "app") return;
+    void (async () => {
+      await requestFirstRunPermission();
+      await syncMedicationNotifications(db.meds);
+    })().catch((error) => console.warn("SleeepX notification setup failed", error));
+  }, [stage, db.meds]);
 
   useEffect(() => {
     const managePin = () => {
