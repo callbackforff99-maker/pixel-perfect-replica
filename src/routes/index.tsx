@@ -63,35 +63,59 @@ function Home() {
           </div>
         </header>
 
-        {/* WELCOME CARD */}
-        <section className="relative overflow-hidden rounded-[28px] border border-[#47232e] bg-gradient-to-br from-[#28151d] via-[#1b151c] to-[#111015] p-5 text-[#f7edf0]">
+        {/* SLEEP DASHBOARD HERO */}
+        <section className="relative overflow-hidden rounded-[28px] border border-[#47232e] bg-gradient-to-br from-[#28151d] via-[#1b151c] to-[#111015] p-5 text-[#f7edf0] shadow-[0_16px_40px_rgba(189,54,84,0.12)]">
+          <div className="pointer-events-none absolute -right-10 -top-12 h-44 w-44 rounded-full bg-[#bd3654]/15 blur-3xl" />
           <div className="relative z-10">
-            <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider opacity-70">
-              <Sparkles size={14} />
-              A little peace for today
+            <div className="mb-3 flex items-center justify-between">
+              <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-[#e45170]">
+                <Sparkles size={13} /> Your sleep space
+              </p>
+              <Moon size={20} className="text-[#e45170]" />
             </div>
 
-            <h2 className="max-w-[240px] text-2xl font-bold leading-tight">
+            <h2 className="max-w-[260px] text-[27px] font-bold leading-tight tracking-tight">
               Rest well.
               <br />
-              Feel better.
+              Wake gently.
             </h2>
-
-            <p className="mt-2 max-w-[230px] text-sm opacity-75">
-              Small steps towards a healthier sleep routine.
+            <p className="mt-2 max-w-[260px] text-sm leading-relaxed text-[#b5a5ad]">
+              A clearer picture of your rest, one night at a time.
             </p>
+
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#b5a5ad]">
+                  Last sleep
+                </p>
+                <p className="mt-2 text-2xl font-bold tracking-tight">
+                  {last ? fmtDuration(durationMinutes(last.start, last.end)) : "—"}
+                </p>
+                <p className="mt-1 text-[11px] text-[#b5a5ad]">
+                  {last ? t(last.end) : "No sleep log yet"}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#b5a5ad]">
+                  Weekly average
+                </p>
+                <p className="mt-2 text-2xl font-bold tracking-tight">
+                  {week.count ? fmtDuration(Math.round(week.avg)) : "—"}
+                </p>
+                <p className="mt-1 text-[11px] text-[#b5a5ad]">
+                  {week.count ? `${week.count} sleep logs` : "Your first log starts here"}
+                </p>
+              </div>
+            </div>
 
             <Link
               to="/sleep"
-              className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#bd3654] px-5 py-3 text-sm font-semibold text-white"
+              className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#bd3654] px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_22px_rgba(189,54,84,0.22)] transition-transform active:scale-95"
             >
-              Track your sleep
+              Open sleep tracker
               <ChevronRight size={16} />
             </Link>
-          </div>
-
-          <div className="pointer-events-none absolute -right-7 -top-5 flex h-44 w-44 items-center justify-center rounded-full bg-white/30 dark:bg-white/5">
-            <Moon size={86} strokeWidth={1} className="opacity-40" />
           </div>
         </section>
 
