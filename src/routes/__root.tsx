@@ -166,7 +166,7 @@ function RootComponent() {
   }, []);
 
   const submitPin = () => {
-    if (!/^\\d{4,6}$/.test(pin)) {
+    if (!/^\d{4,6}$/.test(pin)) {
       setMessage("Enter a 4–6 digit PIN.");
       return;
     }
@@ -262,7 +262,7 @@ function RootComponent() {
               autoComplete="off"
               maxLength={6}
               value={pin}
-              onChange={(e) => { setPin(e.target.value.replace(/\\D/g, "").slice(0, 6)); setMessage(""); }}
+              onChange={(e) => { setPin(e.target.value.replace(/\D/g, "").slice(0, 6)); setMessage(""); }}
               placeholder="Enter PIN"
               className="mt-5 w-full rounded-2xl border border-white/10 bg-black px-4 py-4 text-center text-xl tracking-[0.5em] text-white outline-none focus:border-[#e45170]"
             />
@@ -274,7 +274,7 @@ function RootComponent() {
                 autoComplete="off"
                 maxLength={6}
                 value={confirmPin}
-                onChange={(e) => { setConfirmPin(e.target.value.replace(/\\D/g, "").slice(0, 6)); setMessage(""); }}
+                onChange={(e) => { setConfirmPin(e.target.value.replace(/\D/g, "").slice(0, 6)); setMessage(""); }}
                 placeholder="Confirm PIN"
                 className="mt-3 w-full rounded-2xl border border-white/10 bg-black px-4 py-4 text-center text-xl tracking-[0.5em] text-white outline-none focus:border-[#e45170]"
               />
