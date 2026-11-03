@@ -204,13 +204,13 @@ function SleepPage() {
       <div className="space-y-5 px-4 pb-5">
 
         {/* HERO SECTION */}
-        <section className="relative overflow-hidden rounded-[1.6rem] border border-[#dce7d9] bg-gradient-to-br from-[#eaf2e6] via-[#f5f8f1] to-[#e2ecdf] p-5 dark:border-[#35483a] dark:from-[#293b2e] dark:via-[#25352a] dark:to-[#304333]">
+        <section className="relative overflow-hidden rounded-[1.6rem] border border border-[#47232e] bg-gradient-to-br from-[#28151d] via-[#1b151c] to-[#111015] p-5">
 
-          <div className="pointer-events-none absolute -right-8 -top-10 h-40 w-40 rounded-full bg-white/40 blur-2xl dark:bg-[#9ab89c]/10" />
+          <div className="pointer-events-none absolute -right-8 -top-10 h-40 w-40 rounded-full bg-[#bd3654]/15 blur-2xl" />
 
           <div className="relative flex items-start justify-between gap-3">
             <div>
-              <p className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#6f8e75] dark:text-[#b2c9b1]">
+              <p className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#e45170]">
                 <Moon className="h-3.5 w-3.5" />
                 Your rest matters
               </p>
@@ -219,17 +219,17 @@ function SleepPage() {
                 Understand your sleep, one night at a time.
               </h2>
 
-              <p className="mt-2 max-w-[250px] text-sm leading-relaxed text-[#718075] dark:text-[#b2c0b3]">
+              <p className="mt-2 max-w-[250px] text-sm leading-relaxed text-[#b5a5ad]">
                 Keep track of your nights. Notice your patterns without pressure.
               </p>
             </div>
 
-            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-white/75 text-[#78977e] shadow-sm dark:bg-white/10 dark:text-[#b8cfb8]">
+            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-[#2b2028] text-[#e45170] shadow-sm">
               <BedDouble className="h-7 w-7" />
             </div>
           </div>
 
-          <div className="relative mt-5 flex items-center gap-2 text-xs font-medium text-[#718675] dark:text-[#b4c7b4]">
+          <div className="relative mt-5 flex items-center gap-2 text-xs font-medium text-[#b5a5ad]">
             <Sparkles className="h-4 w-4" />
             Small steps. Softer nights.
           </div>
