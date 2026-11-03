@@ -82,14 +82,14 @@ jobs:
           const fs = require('fs');
           const path = 'android/app/build.gradle';
           let gradle = fs.readFileSync(path, 'utf8');
-          if (!/applicationId\\s+["']com\\.zerox\\.sleeepx["']/.test(gradle)) {
+          if (!/applicationId\s+["']com\.zerox\.sleeepx["']/.test(gradle)) {
             throw new Error('Unexpected Android applicationId. Refusing to build an incompatible update.');
           }
-          if (!/versionCode\\s+\\d+/.test(gradle) || !/versionName\\s+["'][^"']+["']/.test(gradle)) {
+          if (!/versionCode\s+\d+/.test(gradle) || !/versionName\s+["'][^"']+["']/.test(gradle)) {
             throw new Error('Could not locate Android versionCode/versionName.');
           }
-          gradle = gradle.replace(/versionCode\\s+\\d+/, 'versionCode 2');
-          gradle = gradle.replace(/versionName\\s+["'][^"']+["']/, 'versionName "2.0.0"');
+          gradle = gradle.replace(/versionCode\s+\d+/, 'versionCode 2');
+          gradle = gradle.replace(/versionName\s+["'][^"']+["']/, 'versionName "2.0.0"');
           fs.writeFileSync(path, gradle);
           console.log('SleeepX applicationId preserved; versionCode=2, versionName=2.0.0');
           NODE
