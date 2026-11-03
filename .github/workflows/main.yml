@@ -79,7 +79,7 @@ jobs:
       - name: Sync Android
         run: bunx cap sync android
 
-      - name: Set Android app version 2.0.0
+      - name: Set Android app version 4.0.06
         run: |
           node <<'NODE'
           const fs = require('fs');
@@ -91,10 +91,10 @@ jobs:
           if (!/versionCode\s+\d+/.test(gradle) || !/versionName\s+["'][^"']+["']/.test(gradle)) {
             throw new Error('Could not locate Android versionCode/versionName.');
           }
-          gradle = gradle.replace(/versionCode\s+\d+/, 'versionCode 2');
-          gradle = gradle.replace(/versionName\s+["'][^"']+["']/, 'versionName "2.0.0"');
+          gradle = gradle.replace(/versionCode\s+\d+/, 'versionCode 40006');
+          gradle = gradle.replace(/versionName\s+["'][^"']+["']/, 'versionName "4.0.06"');
           fs.writeFileSync(path, gradle);
-          console.log('SleeepX applicationId preserved; versionCode=2, versionName=2.0.0');
+          console.log('SleeepX applicationId preserved; versionCode=40006, versionName=4.0.06');
           NODE
 
       - name: Build APK
