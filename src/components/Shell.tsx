@@ -1,4 +1,4 @@
-import { Home, Moon, Wind, NotebookPen, Settings } from "lucide-react";
+import { Home, Moon, Wind, NotebookPen, Settings, Pill } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { dbError } from "@/lib/store";
 
@@ -7,6 +7,7 @@ const tabs = [
   { to: "/sleep", label: "Sleep", icon: Moon },
   { to: "/calm", label: "Calm", icon: Wind },
   { to: "/journal", label: "Journal", icon: NotebookPen },
+  { to: "/meds", label: "Meds", icon: Pill },
   { to: "/settings", label: "Settings", icon: Settings },
 ] as const;
 
