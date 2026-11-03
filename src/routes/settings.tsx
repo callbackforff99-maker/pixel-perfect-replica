@@ -20,7 +20,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { PageHead, Shell } from "@/components/Shell";
-import { notificationPermission, requestNotificationPermission } from "@/lib/medication-notifications";
+import { notificationPermission, requestNotificationPermission, syncMedicationNotifications } from "@/lib/medication-notifications";
 import {
   download,
   localDate,
@@ -246,8 +246,11 @@ function SettingsPage() {
               {(perm === "prompt" || perm === "prompt-with-rationale" || perm === "default") && (
                 <button
                   onClick={async () => {
-                    try { setPerm(await requestNotificationPermission()); }
-                    catch { setPerm("unsupported"); }
+                    try {
+                      const status = await requestNotificationPermission();
+                      setPerm(status);
+                      if (status === "granted") await syncMedicationNotifications(db.meds);
+                    } catch { setPerm("unsupported"); }
                   }}
                   className="mt-3 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
                 >
