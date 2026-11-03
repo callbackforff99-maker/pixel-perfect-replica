@@ -124,7 +124,9 @@ function makePdf(objects: Uint8Array[]) {
   for (let i = 1; i < offsets.length; i++) xref += String(offsets[i]).padStart(10, "0") + " 00000 n \n";
   xref += "trailer\n<< /Size " + (objects.length + 1) + " /Root 1 0 R >>\nstartxref\n" + xrefOffset + "\n%%EOF";
   parts.push(encoder.encode(xref));
-  const pdfBytes = joinBytes(parts);\n  const exactBuffer = pdfBytes.buffer.slice(pdfBytes.byteOffset, pdfBytes.byteOffset + pdfBytes.byteLength) as ArrayBuffer;\n  return new Blob([exactBuffer], { type: "application/pdf" });
+  const pdfBytes = joinBytes(parts);
+  const exactBuffer = pdfBytes.buffer.slice(pdfBytes.byteOffset, pdfBytes.byteOffset + pdfBytes.byteLength) as ArrayBuffer;
+  return new Blob([exactBuffer], { type: "application/pdf" });
 }
 function DailyTools() {
   const db = useDB();
