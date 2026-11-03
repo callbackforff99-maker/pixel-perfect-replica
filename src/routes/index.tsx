@@ -64,7 +64,7 @@ function Home() {
         </header>
 
         {/* WELCOME CARD */}
-        <section className="relative overflow-hidden rounded-[28px] bg-[#e5eee1] p-5 text-[#344b39] dark:bg-[#2b3c30] dark:text-[#e5eee1]">
+        <section className="relative overflow-hidden rounded-[28px] border border-[#47232e] bg-gradient-to-br from-[#28151d] via-[#1b151c] to-[#111015] p-5 text-[#f7edf0]">
           <div className="relative z-10">
             <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider opacity-70">
               <Sparkles size={14} />
@@ -83,7 +83,7 @@ function Home() {
 
             <Link
               to="/sleep"
-              className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#78977e] px-5 py-3 text-sm font-semibold text-white"
+              className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#bd3654] px-5 py-3 text-sm font-semibold text-white"
             >
               Track your sleep
               <ChevronRight size={16} />
@@ -96,9 +96,9 @@ function Home() {
         </section>
 
         {/* DAILY CARE — promoted from Settings */}
-        <section className="rounded-3xl border border-emerald-500/15 bg-card p-4">
+        <section className="rounded-3xl border border-rose-500/20 bg-card p-4">
           <div className="mb-3 flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/10 text-primary">
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-500/10 text-primary">
               <Heart size={21} />
             </span>
             <div>
@@ -147,19 +147,19 @@ function Home() {
                 to: "/sleep",
                 label: "Sleep log",
                 icon: Moon,
-                color: "bg-[#e8eee3]",
+                color: "bg-[#2b2028]",
               },
               {
                 to: "/calm",
                 label: "Breathe",
                 icon: Wind,
-                color: "bg-[#e5eeeb]",
+                color: "bg-[#2b2028]",
               },
               {
                 to: "/journal",
                 label: "Mood",
                 icon: Smile,
-                color: "bg-[#f1ecdf]",
+                color: "bg-[#30212a]",
               },
             ].map(({ to, label, icon: Icon, color }) => (
               <Link
@@ -168,7 +168,7 @@ function Home() {
                 className="flex min-h-[108px] flex-col items-center justify-center gap-3 rounded-2xl border border-border/70 bg-card p-3 text-center transition-transform active:scale-95"
               >
                 <span className={`flex h-12 w-12 items-center justify-center rounded-2xl ${color}`}>
-                  <Icon className="h-6 w-6 text-[#66866d]" />
+                  <Icon className="h-6 w-6 text-[#e45170]" />
                 </span>
                 <span className="text-xs font-semibold">{label}</span>
               </Link>
