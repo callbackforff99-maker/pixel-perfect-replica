@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Pencil, Trash2, X } from "lucide-react";
+import { Pencil, Plus, Trash2, X, Clock3 } from "lucide-react";
 import { PageHead, Shell } from "@/components/Shell";
 import { localDate, nowISO, uid, update, useDB, type Medication } from "@/lib/store";
 import { syncMedicationNotifications } from "@/lib/medication-notifications";
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/meds")({
   component: Meds,
 });
 
-const blank = () => ({ name: "", instructions: "", times: "08:00", startDate: localDate(), endDate: "", notes: "" });
+const blank = () => ({ name: "", instructions: "", times: ["08:00"], startDate: localDate(), endDate: "", notes: "" });
 
 function Meds() {
   const db = useDB();
@@ -31,9 +31,9 @@ function Meds() {
 
   const save = (e: React.FormEvent) => {
     e.preventDefault();
-    const times = f.times.split(",").map((t) => t.trim()).filter(Boolean);
+    const times = f.times.map((t) => t.trim()).filter(Boolean);
     if (!f.name.trim()) return setErr("Enter the medication name.");
-    if (!times.length || times.some((t) => !/^([01]\\d|2[0-3]):[0-5]\\d$/.test(t))) return setErr("Times must be HH:MM, separated by commas.");
+    if (!times.length || times.some((t) => !/^([01]\d|2[0-3]):[0-5]\d$/.test(t))) return setErr("Choose a valid time for each reminder.");
     if (f.endDate && f.endDate < f.startDate) return setErr("End date must be after start date.");
     setErr(null);
     const values = {
@@ -55,7 +55,7 @@ function Meds() {
 
   const edit = (m: Medication) => {
     setEditingId(m.id);
-    setF({ name: m.name, instructions: m.instructions || "", times: m.times.join(", "), startDate: m.startDate, endDate: m.endDate || "", notes: m.notes || "" });
+    setF({ name: m.name, instructions: m.instructions || "", times: m.times.length ? [...m.times] : ["08:00"], startDate: m.startDate, endDate: m.endDate || "", notes: m.notes || "" });
     setErr(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -64,6 +64,9 @@ function Meds() {
     update((d) => ({ ...d, medEvents: [...d.medEvents, { id: uid(), medId, at: nowISO(), action }] }));
   const toggle = (medId: string, enabled: boolean) =>
     update((d) => ({ ...d, meds: d.meds.map((m) => m.id === medId ? { ...m, enabled } : m) }));
+
+  const changeTime = (index: number, value: string) =>
+    setF((current) => ({ ...current, times: current.times.map((time, i) => i === index ? value : time) }));
 
   return (
     <Shell>
@@ -79,9 +82,37 @@ function Meds() {
           </div>
           <input placeholder="Medication name" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} className="field" />
           <input placeholder="Prescription instructions (optional)" value={f.instructions} onChange={(e) => setF({ ...f, instructions: e.target.value })} className="field" />
-          <label className="block text-sm text-muted-foreground">Reminder times (e.g. 08:00, 20:00)
-            <input value={f.times} onChange={(e) => setF({ ...f, times: e.target.value })} className="field mt-1" />
-          </label>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-foreground">Reminder time</label>
+              <span className="text-xs text-muted-foreground">Tap a time to open the clock</span>
+            </div>
+            {f.times.map((time, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <label className="relative flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-input bg-secondary px-3 py-2.5 focus-within:border-primary">
+                  <Clock3 size={18} className="shrink-0 text-primary" />
+                  <input
+                    aria-label={`Reminder time ${index + 1}`}
+                    type="time"
+                    value={time}
+                    onChange={(e) => changeTime(index, e.target.value)}
+                    onClick={(e) => { try { e.currentTarget.showPicker?.(); } catch { /* Native picker may already be opening. */ } }}
+                    className="w-full min-w-0 bg-transparent text-base font-semibold text-foreground outline-none [color-scheme:dark]"
+                  />
+                </label>
+                {f.times.length > 1 && (
+                  <button type="button" aria-label={`Remove time ${index + 1}`} onClick={() => setF({ ...f, times: f.times.filter((_, i) => i !== index) })} className="rounded-xl border border-border p-3 text-muted-foreground hover:text-destructive"><X size={17}/></button>
+                )}
+              </div>
+            ))}
+            {f.times.length < 6 && (
+              <button type="button" onClick={() => setF({ ...f, times: [...f.times, "20:00"] })} className="inline-flex items-center gap-2 rounded-xl border border-dashed border-primary/50 px-3 py-2 text-sm font-medium text-primary">
+                <Plus size={16}/> Add another time
+              </button>
+            )}
+          </div>
+
           <div className="grid grid-cols-2 gap-2">
             <label className="text-sm text-muted-foreground">Start<input type="date" value={f.startDate} onChange={(e) => setF({ ...f, startDate: e.target.value })} className="field mt-1" /></label>
             <label className="text-sm text-muted-foreground">End (optional)<input type="date" value={f.endDate} onChange={(e) => setF({ ...f, endDate: e.target.value })} className="field mt-1" /></label>
