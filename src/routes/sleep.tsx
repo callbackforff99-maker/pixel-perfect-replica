@@ -204,7 +204,7 @@ function SleepPage() {
       <div className="space-y-5 px-4 pb-5">
 
         {/* HERO SECTION */}
-        <section className="relative overflow-hidden rounded-[1.6rem] border border border-[#47232e] bg-gradient-to-br from-[#28151d] via-[#1b151c] to-[#111015] p-5">
+        <section className="relative overflow-hidden rounded-[1.6rem] border border-[#47232e] bg-gradient-to-br from-[#28151d] via-[#1b151c] to-[#111015] p-5">
 
           <div className="pointer-events-none absolute -right-8 -top-10 h-40 w-40 rounded-full bg-[#bd3654]/15 blur-2xl" />
 
