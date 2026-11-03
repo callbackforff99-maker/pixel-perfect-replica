@@ -18,6 +18,7 @@ import {
   FileText,
   Settings2,
   Sparkles,
+  Mail,
 } from "lucide-react";
 import { PageHead, Shell } from "@/components/Shell";
 import { notificationPermission, requestNotificationPermission, syncMedicationNotifications } from "@/lib/medication-notifications";
@@ -34,7 +35,7 @@ import {
 export const Route = createFileRoute("/settings")({
   head: () => ({
     meta: [
-      { title: "Settings & Privacy — SleeepX 3_4" },
+      { title: "Settings & Privacy — SleepX 4.0.06" },
       { name: "description", content: "Routine, reminders, privacy and data export." },
     ],
   }),
@@ -481,15 +482,48 @@ function SettingsPage() {
           </button>
         </section>
 
-        {/* Footer */}
-        <div className="py-3 text-center">
-          <p className="text-sm font-semibold text-primary">
-            SleeepX 3_4
+        {/* Brand and developer contact */}
+        <section className="space-y-4 py-4 text-center">
+          <div className="mx-auto inline-flex items-center justify-center rounded-full border border-primary/30 bg-primary/5 px-7 py-3 shadow-[0_0_28px_rgba(220,55,85,0.10)]">
+            <span className="text-lg font-extrabold tracking-[0.16em] text-primary">
+              SleepX
+            </span>
+          </div>
+
+          <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-muted-foreground">
+            Developed by ZEROX
           </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Your space. Your pace.
-          </p>
-        </div>
+
+          <div className="space-y-3 pt-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Contact Developer
+            </p>
+            <div className="flex items-center justify-center gap-3">
+              <a
+                href="https://www.facebook.com/share/1FKFx5nWHh/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Open developer Facebook profile"
+                className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border bg-card text-primary transition-colors hover:border-primary/50 hover:bg-primary/10"
+              >
+                <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current" aria-hidden="true">
+                  <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073c0 6.02 4.388 11.019 10.125 11.927v-8.437H7.078v-3.49h3.047V9.41c0-3.017 1.792-4.684 4.533-4.684 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.255h3.328l-.532 3.49h-2.796V24C19.612 23.092 24 18.093 24 12.073Z" />
+                </svg>
+              </a>
+              <a
+                href="mailto:syedlatifshafin@gmail.com"
+                aria-label="Email developer with Gmail"
+                className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border bg-card text-primary transition-colors hover:border-primary/50 hover:bg-primary/10"
+              >
+                <Mail size={21} />
+              </a>
+            </div>
+            <div className="flex justify-center gap-8 text-[11px] text-muted-foreground">
+              <span>Facebook</span>
+              <span>Gmail</span>
+            </div>
+          </div>
+        </section>
       </div>
     </Shell>
   );
