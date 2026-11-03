@@ -1,11 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { ArrowLeft, Droplets, Download, Eye, Plus, X } from "lucide-react";
+import { ArrowLeft, Droplets, Download, Eye, Plus, X, Pencil, Trash2, Target, GlassWater, RotateCcw, Check, Clock3 } from "lucide-react";
 import { PageHead, Shell } from "@/components/Shell";
 import { localDate, useDB } from "@/lib/store";
 
 export const Route = createFileRoute("/daily")({ component: DailyTools });
-const WATER_KEY = "sleeepx.water.v1";
+const WATER_KEY = "sleeepx.water.ml.v2";
+const WATER_LOG_KEY = "sleeepx.water.logs.v2";
+const WATER_GOAL_KEY = "sleeepx.water.goal.v1";
+type WaterLog = { id: string; date: string; ml: number; createdAt: string };
 type ReportRow = { date: string; sleep: string; water: number; mood: string };
 function read<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -72,7 +75,7 @@ function buildPdfCanvas(rows: ReportRow[], start: string, end: string, avgSleep:
       ctx.fillStyle = "#332832"; ctx.font = "600 17px Arial, sans-serif";
       ctx.fillText(row.date, cols[0] + 15, y + 30);
       ctx.fillText(row.sleep, cols[1] + 15, y + 30);
-      ctx.fillText(row.water + " glasses", cols[2] + 15, y + 30);
+      ctx.fillText(row.water + " ml", cols[2] + 15, y + 30);
       const noteLines = wrap(ctx, row.mood || "—", 370);
       ctx.font = "15px Arial, sans-serif";
       ctx.fillText(noteLines[0] || "—", cols[3] + 15, y + 21);
@@ -131,7 +134,22 @@ function makePdf(objects: Uint8Array[]) {
 function DailyTools() {
   const db = useDB();
   const today = localDate();
-  const [water, setWater] = useState<Record<string, number>>(() => read(WATER_KEY, {}));
+  const [water, setWater] = useState<Record<string, number>>(() => {
+    const saved = read<Record<string, number> | null>(WATER_KEY, null);
+    if (saved) return saved;
+    const legacy = read<Record<string, number>>("sleeepx.water.v1", {});
+    const migrated = Object.fromEntries(Object.entries(legacy).map(([day, glasses]) => [day, glasses * 250]));
+    if (typeof window !== "undefined" && Object.keys(migrated).length) window.localStorage.setItem(WATER_KEY, JSON.stringify(migrated));
+    return migrated;
+  });
+  const [waterLogs, setWaterLogs] = useState<WaterLog[]>(() => read(WATER_LOG_KEY, []));
+  const [goal, setGoal] = useState<number>(() => read(WATER_GOAL_KEY, 2000));
+  const [customOpen, setCustomOpen] = useState(false);
+  const [customAmount, setCustomAmount] = useState("300");
+  const [goalOpen, setGoalOpen] = useState(false);
+  const [goalAmount, setGoalAmount] = useState("2000");
+  const [editingLog, setEditingLog] = useState<string | null>(null);
+  const [editAmount, setEditAmount] = useState("250");
   const [date, setDate] = useState(today);
   const [reportStart, setReportStart] = useState(shiftDate(today, -29));
   const [reportEnd, setReportEnd] = useState(today);
@@ -139,10 +157,41 @@ function DailyTools() {
   const [downloading, setDownloading] = useState(false);
   const [reportError, setReportError] = useState("");
   const count = water[date] || 0;
-  const addWater = (n: number) => {
-    const next = { ...water, [date]: Math.max(0, (water[date] || 0) + n) };
-    setWater(next); localStorage.setItem(WATER_KEY, JSON.stringify(next));
+  const dayLogs = waterLogs.filter(log => log.date === date).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const persistWater = (nextWater: Record<string, number>, nextLogs: WaterLog[]) => {
+    setWater(nextWater); setWaterLogs(nextLogs);
+    localStorage.setItem(WATER_KEY, JSON.stringify(nextWater));
+    localStorage.setItem(WATER_LOG_KEY, JSON.stringify(nextLogs));
   };
+  const addWater = (ml: number) => {
+    if (!Number.isFinite(ml) || ml <= 0 || ml > 5000) return;
+    const amount = Math.round(ml);
+    const nextLogs = [...waterLogs, { id: String(Date.now()) + "-" + Math.random().toString(36).slice(2, 8), date, ml: amount, createdAt: new Date().toISOString() }];
+    persistWater({ ...water, [date]: count + amount }, nextLogs);
+    setCustomOpen(false);
+  };
+  const undoWater = () => {
+    const latest = dayLogs[0];
+    if (!latest) return;
+    persistWater({ ...water, [date]: Math.max(0, count - latest.ml) }, waterLogs.filter(log => log.id !== latest.id));
+  };
+  const deleteWaterLog = (log: WaterLog) => {
+    persistWater({ ...water, [date]: Math.max(0, count - log.ml) }, waterLogs.filter(item => item.id !== log.id));
+  };
+  const saveEditedLog = (log: WaterLog) => {
+    const ml = Math.round(Number(editAmount));
+    if (!Number.isFinite(ml) || ml <= 0 || ml > 5000) return;
+    persistWater({ ...water, [date]: Math.max(0, count - log.ml + ml) }, waterLogs.map(item => item.id === log.id ? { ...item, ml } : item));
+    setEditingLog(null);
+  };
+  const saveGoal = () => {
+    const value = Math.round(Number(goalAmount));
+    if (!Number.isFinite(value) || value < 250 || value > 10000) return;
+    setGoal(value); localStorage.setItem(WATER_GOAL_KEY, JSON.stringify(value)); setGoalOpen(false);
+  };
+  const lastSevenDays = Array.from({ length: 7 }, (_, index) => shiftDate(date, index - 6));
+  const maxWater = Math.max(goal, ...lastSevenDays.map(day => water[day] || 0), 1);
+  const progress = Math.min(100, Math.round((count / Math.max(goal, 1)) * 100));
   const report = useMemo(() => {
     if (!reportStart || !reportEnd || reportStart > reportEnd) return [];
     const days: string[] = [];
@@ -190,15 +239,47 @@ function DailyTools() {
   return <Shell>
     <PageHead title="Daily Care" sub="Water tracker and personal records" />
     <div className="space-y-4 px-4 pb-6">
-      <section className="card-x space-y-3">
-        <h2 className="flex items-center gap-2 font-semibold"><Droplets className="h-5 w-5 text-primary" /> Water tracker</h2>
-        <label className="block text-sm text-muted-foreground">Choose date<input type="date" value={date} max={today} onChange={e => setDate(e.target.value)} className="field mt-1" /></label>
-        <div className="rounded-xl bg-secondary p-4 text-center"><p className="text-3xl font-bold">{(count * .25).toFixed(2)} L</p><p className="text-sm text-muted-foreground">{count} glasses · 250 ml each</p></div>
-        <div className="flex gap-2">
-          <button onClick={() => addWater(1)} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-3 font-semibold text-primary-foreground"><Plus className="h-4 w-4" /> Add 1 glass</button>
-          <button onClick={() => addWater(-1)} disabled={!count} className="rounded-xl border border-border px-4 disabled:opacity-40">Undo</button>
+      <section className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-sm">
+        <div className="pointer-events-none absolute -right-12 -top-14 h-40 w-40 rounded-full bg-sky-400/10 blur-3xl" />
+        <div className="relative space-y-4">
+          <div className="flex items-center justify-between">
+            <div><h2 className="flex items-center gap-2 font-semibold"><Droplets className="h-5 w-5 text-sky-400" /> Hydration</h2><p className="mt-1 text-[11px] tracking-[0.18em] text-muted-foreground">YOUR DAILY WATER TRACKER</p></div>
+            <button onClick={() => { setGoalAmount(String(goal)); setGoalOpen(true); }} aria-label="Edit daily water goal" className="rounded-xl border border-border p-2 text-muted-foreground"><Target className="h-4 w-4" /></button>
+          </div>
+          <div className="rounded-2xl border border-sky-400/10 bg-gradient-to-br from-sky-400/10 via-secondary to-secondary p-4">
+            <p className="text-center text-[10px] font-semibold tracking-[0.2em] text-muted-foreground">TODAY'S INTAKE</p>
+            <div className="mt-1 flex items-center justify-center gap-1"><span className="text-4xl font-bold tracking-tight">{count.toLocaleString()}</span><span className="mt-3 text-sm text-muted-foreground">ml</span></div>
+            <p className="text-center text-xs text-muted-foreground">of {goal.toLocaleString()} ml daily goal</p>
+            <div className="my-4 flex justify-center">
+              <div className="relative grid h-36 w-36 place-items-center rounded-full" style={{ background: "conic-gradient(#55bde9 " + progress + "%, rgba(120,140,155,.18) " + progress + "% 100%)" }} role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label="Daily water goal progress">
+                <div className="grid h-[118px] w-[118px] place-items-center rounded-full bg-card text-center shadow-inner"><div><GlassWater className="mx-auto h-7 w-7 text-sky-400" /><p className="mt-1 text-2xl font-bold">{progress}%</p><p className="text-[10px] text-muted-foreground">COMPLETED</p></div></div>
+              </div>
+            </div>
+            <div className="flex items-center justify-between border-t border-border/70 pt-3 text-xs"><span className="text-muted-foreground">Remaining</span><span className="font-semibold text-sky-400">{Math.max(0, goal - count).toLocaleString()} ml</span></div>
+            {count >= goal && <p className="mt-2 text-center text-xs font-medium text-emerald-500">Daily goal reached. Great work!</p>}
+          </div>
+          <label className="block text-xs text-muted-foreground">Selected day<input type="date" value={date} max={today} onChange={e => setDate(e.target.value)} className="field mt-1" /></label>
+          <div className="space-y-2"><div className="flex items-center justify-between"><p className="text-xs font-semibold tracking-wide">QUICK ADD</p><span className="text-[10px] text-muted-foreground">Choose amount</span></div>
+            <div className="grid grid-cols-3 gap-2">
+              {[150,250,500].map(ml => <button key={ml} onClick={() => addWater(ml)} className="flex flex-col items-center gap-1 rounded-xl border border-sky-400/15 bg-sky-400/[0.06] px-2 py-3 transition active:scale-95 hover:border-sky-400/40"><GlassWater className="h-5 w-5 text-sky-400" /><span className="text-sm font-semibold">{ml} ml</span></button>)}
+            </div>
+            <button onClick={() => setCustomOpen(value => !value)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary/40 py-3 text-sm font-semibold text-primary"><Plus className="h-4 w-4" /> CUSTOM AMOUNT</button>
+            {customOpen && <div className="flex gap-2 rounded-xl border border-border bg-secondary/50 p-3"><input type="number" min="1" max="5000" inputMode="numeric" value={customAmount} onChange={e => setCustomAmount(e.target.value)} className="field min-w-0 flex-1" aria-label="Custom water amount in milliliters" /><button onClick={() => addWater(Number(customAmount))} className="rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground">Add</button></div>}
+          </div>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between"><h3 className="text-sm font-semibold">Today's history</h3><button onClick={undoWater} disabled={!dayLogs.length} className="flex items-center gap-1 text-xs text-muted-foreground disabled:opacity-40"><RotateCcw className="h-3.5 w-3.5" /> Undo last</button></div>
+            {dayLogs.length ? <div className="space-y-2">{dayLogs.map(log => <div key={log.id} className="flex items-center gap-2 rounded-xl border border-border bg-secondary/40 p-3">
+              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-sky-400/10"><Droplets className="h-4 w-4 text-sky-400" /></div>
+              <div className="min-w-0 flex-1"><p className="text-sm font-semibold">{log.ml.toLocaleString()} ml</p><p className="text-[11px] text-muted-foreground"><Clock3 className="mr-1 inline h-3 w-3" />{new Date(log.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p></div>
+              {editingLog === log.id ? <><input type="number" min="1" max="5000" value={editAmount} onChange={e => setEditAmount(e.target.value)} className="field w-20" /><button onClick={() => saveEditedLog(log)} aria-label="Save amount" className="rounded-lg p-2 text-emerald-500"><Check className="h-4 w-4" /></button><button onClick={() => setEditingLog(null)} aria-label="Cancel edit" className="rounded-lg p-2 text-muted-foreground"><X className="h-4 w-4" /></button></> : <><button onClick={() => { setEditingLog(log.id); setEditAmount(String(log.ml)); }} aria-label="Edit water entry" className="rounded-lg p-2 text-muted-foreground"><Pencil className="h-4 w-4" /></button><button onClick={() => deleteWaterLog(log)} aria-label="Delete water entry" className="rounded-lg p-2 text-muted-foreground"><Trash2 className="h-4 w-4" /></button></>}
+            </div>)}</div> : <p className="rounded-xl border border-dashed border-border py-6 text-center text-xs text-muted-foreground">No water entries for this day yet. Add your first glass above.</p>}
+          </div>
+          <div className="space-y-3 border-t border-border pt-4"><div><h3 className="text-sm font-semibold">Last 7 days</h3><p className="text-[11px] text-muted-foreground">Your daily water intake</p></div>
+            <div className="flex h-28 items-end justify-between gap-2">{lastSevenDays.map(day => { const value = water[day] || 0; const height = Math.max(5, Math.round((value / maxWater) * 100)); return <div key={day} className="flex h-full flex-1 flex-col items-center justify-end gap-1"><span className="text-[9px] text-muted-foreground">{value ? (value/1000).toFixed(1) + "L" : "—"}</span><div className="flex h-16 w-full items-end overflow-hidden rounded-t-md bg-secondary"><div className="w-full rounded-t-md bg-sky-400 transition-all duration-500" style={{ height: height + "%" }} /></div><span className="text-[9px] text-muted-foreground">{new Date(day + "T12:00:00").toLocaleDateString(undefined, { weekday: "short" })}</span></div>; })}</div>
+          </div>
         </div>
       </section>
+      {goalOpen && <div className="fixed inset-0 z-[110] grid place-items-center bg-black/70 p-4"><div className="w-full max-w-sm space-y-4 rounded-2xl border border-border bg-card p-5 shadow-2xl"><div className="flex items-center justify-between"><h3 className="font-semibold">Daily water goal</h3><button onClick={() => setGoalOpen(false)} aria-label="Close goal settings"><X className="h-5 w-5" /></button></div><p className="text-xs text-muted-foreground">Set a personal target in milliliters (250–10,000 ml).</p><input type="number" min="250" max="10000" step="50" value={goalAmount} onChange={e => setGoalAmount(e.target.value)} className="field" /><div className="flex gap-2"><button onClick={() => setGoalOpen(false)} className="flex-1 rounded-xl border border-border py-3 text-sm">Cancel</button><button onClick={saveGoal} className="flex-1 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground">Save goal</button></div></div></div>}
       <section className="card-x space-y-4">
         <div><h2 className="font-semibold">SleepX Record · PDF</h2><p className="mt-1 text-sm text-muted-foreground">Choose the record period. Preview the report before saving it as a PDF.</p></div>
         <div className="grid grid-cols-2 gap-3">
@@ -239,7 +320,7 @@ function DailyTools() {
             <div className="mt-5 overflow-x-auto">
               <table className="w-full min-w-[520px] border-collapse text-left text-xs">
                 <thead><tr className="bg-[#281b23] text-white"><th className="p-2">Date</th><th className="p-2">Sleep</th><th className="p-2">Water</th><th className="p-2">Mood / Notes</th></tr></thead>
-                <tbody>{report.map((row, i) => <tr key={row.date} className={i % 2 ? "bg-[#f0e9eb]" : "bg-white"}><td className="border-b border-[#e3d7dc] p-2 font-medium">{row.date}</td><td className="border-b border-[#e3d7dc] p-2">{row.sleep}</td><td className="border-b border-[#e3d7dc] p-2">{row.water} glasses</td><td className="max-w-[180px] border-b border-[#e3d7dc] p-2">{row.mood}</td></tr>)}</tbody>
+                <tbody>{report.map((row, i) => <tr key={row.date} className={i % 2 ? "bg-[#f0e9eb]" : "bg-white"}><td className="border-b border-[#e3d7dc] p-2 font-medium">{row.date}</td><td className="border-b border-[#e3d7dc] p-2">{row.sleep}</td><td className="border-b border-[#e3d7dc] p-2">{row.water} ml</td><td className="max-w-[180px] border-b border-[#e3d7dc] p-2">{row.mood}</td></tr>)}</tbody>
               </table>
             </div>
             {!report.some(row => row.sleep !== "—" || row.water > 0 || row.mood !== "—") && <p className="mt-4 rounded-lg bg-white p-4 text-center text-xs text-[#8e6875]">No records found in this date range yet.</p>}
