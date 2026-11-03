@@ -5,7 +5,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ========================================
-   SLEEEPX — SAGE CALM DESIGN SYSTEM
+   SLEEEPX — ZEROX CRIMSON DESIGN SYSTEM
    Developed by ZEROX — Splash screen only
 ======================================== */
 
@@ -72,56 +72,56 @@
 
   --radius: 1.15rem;
 
-  --background: #e4e9e0;
-  --foreground: #243329;
+  --background: #171419;
+  --foreground: #f4edf0;
 
-  --card: #f0f3ed;
-  --card-foreground: #243329;
+  --card: #211b21;
+  --card-foreground: #f4edf0;
 
-  --popover: #eef2eb;
-  --popover-foreground: #243329;
+  --popover: #211b21;
+  --popover-foreground: #f4edf0;
 
-  --primary: #78977e;
-  --primary-glow: #91ad96;
+  --primary: #bd3654;
+  --primary-glow: #e45170;
   --primary-foreground: #ffffff;
 
-  --secondary: #d9e1d5;
-  --secondary-foreground: #354a3a;
+  --secondary: #2b222a;
+  --secondary-foreground: #f0e5e9;
 
-  --muted: #dfe6dc;
-  --muted-foreground: #657367;
+  --muted: #292229;
+  --muted-foreground: #b5a5ad;
 
-  --accent: #d4dfd0;
-  --accent-foreground: #354a3a;
+  --accent: #3b222c;
+  --accent-foreground: #f0e5e9;
 
-  --destructive: #d76e6e;
+  --destructive: #e35c6c;
   --destructive-foreground: #ffffff;
 
-  --border: #cbd6c8;
-  --input: #d0dbcc;
-  --ring: #91ad96;
+  --border: #3b2b34;
+  --input: #49313c;
+  --ring: #e45170;
 
-  --chart-1: #78977e;
+  --chart-1: #bd3654;
   --chart-2: #a6b99c;
-  --chart-3: #d0b98e;
-  --chart-4: #91a9a1;
-  --chart-5: #c3d1bd;
+  --chart-3: #c79b78;
+  --chart-4: #8e7180;
+  --chart-5: #e9b9c5;
 
   --sidebar: #ffffff;
-  --sidebar-foreground: #27352c;
-  --sidebar-primary: #78977e;
+  --sidebar-foreground: #f4edf0;
+  --sidebar-primary: #bd3654;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #eaf0e7;
-  --sidebar-accent-foreground: #405747;
-  --sidebar-border: #e4eae0;
-  --sidebar-ring: #91ad96;
+  --sidebar-accent: #2b222a;
+  --sidebar-accent-foreground: #f0e5e9;
+  --sidebar-border: #3b2b34;
+  --sidebar-ring: #e45170;
 
-  --glow: 0 4px 20px rgba(120, 151, 126, 0.10);
+  --glow: 0 4px 20px rgba(189, 54, 84, 0.16);
 
   --vignette:
     radial-gradient(
       ellipse at top,
-      rgba(210, 226, 204, 0.25),
+      rgba(189, 54, 84, 0.14),
       transparent 65%
     );
 }
@@ -132,55 +132,55 @@
   color-scheme: dark;
 
   --background: #18221c;
-  --foreground: #e8eee7;
+  --foreground: #f4edf0;
 
-  --card: #222f26;
-  --card-foreground: #e8eee7;
+  --card: #17131a;
+  --card-foreground: #f4edf0;
 
-  --popover: #222f26;
-  --popover-foreground: #e8eee7;
+  --popover: #17131a;
+  --popover-foreground: #f4edf0;
 
-  --primary: #9ab89c;
-  --primary-glow: #b0cbb0;
-  --primary-foreground: #1c2a20;
+  --primary: #e45170;
+  --primary-glow: #f06a83;
+  --primary-foreground: #fff7f9;
 
-  --secondary: #2b3a30;
-  --secondary-foreground: #e1eadf;
+  --secondary: #292229;
+  --secondary-foreground: #f0e5e9;
 
-  --muted: #2b3a30;
+  --muted: #292229;
   --muted-foreground: #a0afa1;
 
-  --accent: #34483a;
-  --accent-foreground: #e8eee7;
+  --accent: #3b222c;
+  --accent-foreground: #f4edf0;
 
-  --destructive: #dc7777;
+  --destructive: #e35c6c;
   --destructive-foreground: #ffffff;
 
-  --border: #35443a;
-  --input: #3b4b40;
-  --ring: #9ab89c;
+  --border: #3b2b34;
+  --input: #49313c;
+  --ring: #e45170;
 
-  --chart-1: #9ab89c;
-  --chart-2: #b6cba8;
-  --chart-3: #d0b98e;
-  --chart-4: #91a9a1;
-  --chart-5: #c3d1bd;
+  --chart-1: #e45170;
+  --chart-2: #d66b82;
+  --chart-3: #c79b78;
+  --chart-4: #8e7180;
+  --chart-5: #e9b9c5;
 
-  --sidebar: #222f26;
-  --sidebar-foreground: #e8eee7;
-  --sidebar-primary: #9ab89c;
-  --sidebar-primary-foreground: #1c2a20;
-  --sidebar-accent: #2b3a30;
-  --sidebar-accent-foreground: #e8eee7;
-  --sidebar-border: #35443a;
-  --sidebar-ring: #9ab89c;
+  --sidebar: #17131a;
+  --sidebar-foreground: #f4edf0;
+  --sidebar-primary: #e45170;
+  --sidebar-primary-foreground: #fff7f9;
+  --sidebar-accent: #292229;
+  --sidebar-accent-foreground: #f4edf0;
+  --sidebar-border: #3b2b34;
+  --sidebar-ring: #e45170;
 
   --glow: 0 4px 22px rgba(0, 0, 0, 0.18);
 
   --vignette:
     radial-gradient(
       ellipse at top,
-      rgba(120, 151, 126, 0.10),
+      rgba(189, 54, 84, 0.16),
       transparent 65%
     );
 }
@@ -234,7 +234,7 @@
   }
 
   ::selection {
-    background: rgba(120, 151, 126, 0.25);
+    background: rgba(189, 54, 84, 0.30);
     color: var(--color-foreground);
   }
 }
@@ -244,9 +244,9 @@
 @utility card-x {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: calc(var(--radius) + 0.25rem);
   padding: 1rem;
-  box-shadow: 0 3px 14px rgba(60, 85, 65, 0.045);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
 }
 
 @utility field {
