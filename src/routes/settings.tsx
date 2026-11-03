@@ -48,6 +48,7 @@ function SettingsPage() {
   const s = db.settings;
 
   const [perm, setPerm] = useState<string>("unknown");
+  const [isDark, setIsDark] = useState(false);
 
   const set = (p: Partial<Settings>) =>
     update((d) => ({
@@ -56,12 +57,11 @@ function SettingsPage() {
     }));
 
   useEffect(() => {
+    setIsDark(document.documentElement.classList.contains("dark"));
     void notificationPermission().then(setPerm).catch(() => setPerm("unsupported"));
   }, []);
 
   const anyReminder = s.windDown.enabled || s.morning.enabled;
-
-  const isDark = document.documentElement.classList.contains("dark");
 
   return (
     <Shell>
@@ -73,9 +73,9 @@ function SettingsPage() {
       <div className="space-y-5 px-4 pb-6">
 
         {/* Header card */}
-        <section className="card-x relative overflow-hidden bg-gradient-to-br from-[#28151d] via-[#1b151c] to-[#111015] border border-[#47232e] p-5">
+        <section className="card-x relative overflow-hidden border border-border bg-gradient-to-br from-card via-background to-card p-5">
           <div className="relative z-10 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#2b2028] text-primary">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary text-primary">
               <Settings2 size={23} />
             </div>
 
@@ -300,6 +300,7 @@ function SettingsPage() {
               const dark = !document.documentElement.classList.contains("dark");
               document.documentElement.classList.toggle("dark", dark);
               localStorage.setItem("sleeepx.theme", dark ? "dark" : "light");
+              setIsDark(dark);
             }}
             className="flex w-full items-center gap-3 text-left"
           >
