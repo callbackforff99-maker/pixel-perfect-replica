@@ -313,7 +313,7 @@ function SettingsPage() {
                 Light / Dark mode
               </span>
               <span className="block text-xs text-muted-foreground">
-                Switch the Sage Calm color theme
+                Switch between the SleeepX light and dark themes
               </span>
             </span>
 
@@ -338,7 +338,7 @@ function SettingsPage() {
                 PIN Security
               </span>
               <span className="block text-xs text-muted-foreground">
-                Verify your current PIN before changing it
+                Set up a PIN or verify your current PIN before changing it
               </span>
             </span>
 
