@@ -65,7 +65,7 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/* LIGHT MODE — DEFAULT */
+/* GRAPHITE MODE — DEFAULT */
 
 :root {
   color-scheme: dark;
@@ -103,7 +103,7 @@
 
   --chart-1: #bd3654;
   --chart-2: #d66b82;
-  --chart-3: #c79b78;
+  --chart-3: #e45170;
   --chart-4: #8e7180;
   --chart-5: #e9b9c5;
 
@@ -126,7 +126,7 @@
     );
 }
 
-/* DARK MODE */
+/* DEEP BLACK MODE */
 
 .dark {
   color-scheme: dark;
@@ -162,7 +162,7 @@
 
   --chart-1: #e45170;
   --chart-2: #d66b82;
-  --chart-3: #c79b78;
+  --chart-3: #e45170;
   --chart-4: #8e7180;
   --chart-5: #e9b9c5;
 
