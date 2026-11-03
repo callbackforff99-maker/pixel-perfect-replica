@@ -44,7 +44,7 @@ export function Shell({ children }: { children: ReactNode }) {
         aria-label="Main navigation"
         className="fixed inset-x-3 bottom-3 z-20 mx-auto max-w-md rounded-[1.7rem] border border-border/90 bg-card/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_34px_rgba(0,0,0,0.32)] backdrop-blur-2xl"
       >
-        <ul className="mx-auto grid max-w-md grid-cols-5 px-2">
+        <ul className="mx-auto grid max-w-md grid-cols-6 px-2">
           {tabs.map(({ to, label, icon: Icon }) => {
             const active = activePath === to;
             return (
