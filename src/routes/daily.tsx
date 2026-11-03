@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { ArrowLeft, Droplets, Download, Eye, FileDown, Plus, X } from "lucide-react";
+import { ArrowLeft, Droplets, Download, Eye, Plus, X } from "lucide-react";
 import { PageHead, Shell } from "@/components/Shell";
 import { localDate, useDB } from "@/lib/store";
 
@@ -20,7 +20,7 @@ function formatDate(value: string) {
   return new Date(value + "T12:00:00").toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" });
 }
 function buildPdfCanvas(rows: ReportRow[], start: string, end: string, avgSleep: string, totalSleep: number) {
-  const width = 1240, height = 1754, perPage = 20;
+  const width = 1240, height = 1754, perPage = 18;
   const pages: string[] = [];
   const chunks: Uint8Array[] = [];
   const encoder = new TextEncoder();
@@ -124,7 +124,7 @@ function makePdf(objects: Uint8Array[]) {
   for (let i = 1; i < offsets.length; i++) xref += String(offsets[i]).padStart(10, "0") + " 00000 n \n";
   xref += "trailer\n<< /Size " + (objects.length + 1) + " /Root 1 0 R >>\nstartxref\n" + xrefOffset + "\n%%EOF";
   parts.push(encoder.encode(xref));
-  return new Blob([joinBytes(parts)], { type: "application/pdf" });
+  const pdfBytes = joinBytes(parts);\n  const exactBuffer = pdfBytes.buffer.slice(pdfBytes.byteOffset, pdfBytes.byteOffset + pdfBytes.byteLength) as ArrayBuffer;\n  return new Blob([exactBuffer], { type: "application/pdf" });
 }
 function DailyTools() {
   const db = useDB();
