@@ -25,7 +25,7 @@ export type Medication = {
   enabled: boolean;
   notes?: string | undefined;
 };
-export type MedEvent = { id: string; medId: string; at: string; action: "taken" | "dismissed" };
+export type MedEvent = { id: string; medId: string; at: string; action: "taken" | "dismissed" | "skipped" | "missed"; scheduledTime?: string };
 export type BreathSession = { id: string; at: string; seconds: number; completed: boolean };
 export type Settings = {
   bedtime: string;
@@ -132,12 +132,17 @@ export function toLocalInput(iso: string) {
 }
 
 export function download(name: string, content: string, type: string) {
-  const url = URL.createObjectURL(new Blob([content], { type }));
+  const blob = new Blob(["\\uFEFF", content], { type });
+  const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
   a.download = name;
+  a.style.display = "none";
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(url);
+  a.remove();
+  // Do not revoke immediately: Android WebView may still be reading the Blob.
+  window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 export function sleepCSV(logs: SleepLog[]) {

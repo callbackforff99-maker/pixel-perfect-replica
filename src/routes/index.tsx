@@ -63,42 +63,66 @@ function Home() {
           </div>
         </header>
 
-        {/* WELCOME CARD */}
-        <section className="relative overflow-hidden rounded-[28px] bg-[#e5eee1] p-5 text-[#344b39] dark:bg-[#2b3c30] dark:text-[#e5eee1]">
+        {/* SLEEP DASHBOARD HERO */}
+        <section className="relative overflow-hidden rounded-[28px] border border-[#47232e] bg-gradient-to-br from-[#28151d] via-[#1b151c] to-[#111015] p-5 text-[#f7edf0] shadow-[0_16px_40px_rgba(189,54,84,0.12)]">
+          <div className="pointer-events-none absolute -right-10 -top-12 h-44 w-44 rounded-full bg-[#bd3654]/15 blur-3xl" />
           <div className="relative z-10">
-            <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider opacity-70">
-              <Sparkles size={14} />
-              A little peace for today
+            <div className="mb-3 flex items-center justify-between">
+              <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-[#e45170]">
+                <Sparkles size={13} /> Your sleep space
+              </p>
+              <Moon size={20} className="text-[#e45170]" />
             </div>
 
-            <h2 className="max-w-[240px] text-2xl font-bold leading-tight">
+            <h2 className="max-w-[260px] text-[27px] font-bold leading-tight tracking-tight">
               Rest well.
               <br />
-              Feel better.
+              Wake gently.
             </h2>
-
-            <p className="mt-2 max-w-[230px] text-sm opacity-75">
-              Small steps towards a healthier sleep routine.
+            <p className="mt-2 max-w-[260px] text-sm leading-relaxed text-[#b5a5ad]">
+              A clearer picture of your rest, one night at a time.
             </p>
+
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#b5a5ad]">
+                  Last sleep
+                </p>
+                <p className="mt-2 text-2xl font-bold tracking-tight">
+                  {last ? fmtDuration(durationMinutes(last.start, last.end)) : "—"}
+                </p>
+                <p className="mt-1 text-[11px] text-[#b5a5ad]">
+                  {last ? t(last.end) : "No sleep log yet"}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#b5a5ad]">
+                  Weekly average
+                </p>
+                <p className="mt-2 text-2xl font-bold tracking-tight">
+                  {week.count ? fmtDuration(Math.round(week.avg)) : "—"}
+                </p>
+                <p className="mt-1 text-[11px] text-[#b5a5ad]">
+                  {week.count ? `${week.count} sleep logs` : "Your first log starts here"}
+                </p>
+              </div>
+            </div>
 
             <Link
               to="/sleep"
-              className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#78977e] px-5 py-3 text-sm font-semibold text-white"
+              className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#bd3654] px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_22px_rgba(189,54,84,0.22)] transition-transform active:scale-95"
             >
-              Track your sleep
+              Open sleep tracker
               <ChevronRight size={16} />
             </Link>
-          </div>
-
-          <div className="pointer-events-none absolute -right-7 -top-5 flex h-44 w-44 items-center justify-center rounded-full bg-white/30 dark:bg-white/5">
-            <Moon size={86} strokeWidth={1} className="opacity-40" />
           </div>
         </section>
 
         {/* DAILY CARE — promoted from Settings */}
-        <section className="rounded-3xl border border-emerald-500/15 bg-card p-4">
+        <section className="rounded-3xl border border-rose-500/20 bg-card p-4">
           <div className="mb-3 flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/10 text-primary">
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-500/10 text-primary">
               <Heart size={21} />
             </span>
             <div>
@@ -147,19 +171,19 @@ function Home() {
                 to: "/sleep",
                 label: "Sleep log",
                 icon: Moon,
-                color: "bg-[#e8eee3]",
+                color: "bg-[#2b2028]",
               },
               {
                 to: "/calm",
                 label: "Breathe",
                 icon: Wind,
-                color: "bg-[#e5eeeb]",
+                color: "bg-[#2b2028]",
               },
               {
                 to: "/journal",
                 label: "Mood",
                 icon: Smile,
-                color: "bg-[#f1ecdf]",
+                color: "bg-[#30212a]",
               },
             ].map(({ to, label, icon: Icon, color }) => (
               <Link
@@ -168,7 +192,7 @@ function Home() {
                 className="flex min-h-[108px] flex-col items-center justify-center gap-3 rounded-2xl border border-border/70 bg-card p-3 text-center transition-transform active:scale-95"
               >
                 <span className={`flex h-12 w-12 items-center justify-center rounded-2xl ${color}`}>
-                  <Icon className="h-6 w-6 text-[#66866d]" />
+                  <Icon className="h-6 w-6 text-[#e45170]" />
                 </span>
                 <span className="text-xs font-semibold">{label}</span>
               </Link>

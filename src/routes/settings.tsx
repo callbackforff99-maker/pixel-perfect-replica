@@ -1,5 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { Capacitor } from "@capacitor/core";
+import { Filesystem, Directory } from "@capacitor/filesystem";
+import { Share } from "@capacitor/share";
 import {
   ChevronRight,
   Pill,
@@ -18,8 +21,10 @@ import {
   FileText,
   Settings2,
   Sparkles,
+  Mail,
 } from "lucide-react";
 import { PageHead, Shell } from "@/components/Shell";
+import { notificationPermission, requestNotificationPermission, syncMedicationNotifications } from "@/lib/medication-notifications";
 import {
   download,
   localDate,
@@ -33,7 +38,7 @@ import {
 export const Route = createFileRoute("/settings")({
   head: () => ({
     meta: [
-      { title: "Settings & Privacy — SleeepX 3_4" },
+      { title: "Settings & Privacy — SleepX 4.0.06" },
       { name: "description", content: "Routine, reminders, privacy and data export." },
     ],
   }),
@@ -47,6 +52,9 @@ function SettingsPage() {
   const s = db.settings;
 
   const [perm, setPerm] = useState<string>("unknown");
+  const [isDark, setIsDark] = useState(false);
+  const [exporting, setExporting] = useState<"all" | "sleep" | null>(null);
+  const [exportMessage, setExportMessage] = useState<string | null>(null);
 
   const set = (p: Partial<Settings>) =>
     update((d) => ({
@@ -55,16 +63,11 @@ function SettingsPage() {
     }));
 
   useEffect(() => {
-    setPerm(
-      typeof Notification === "undefined"
-        ? "unsupported"
-        : Notification.permission
-    );
+    setIsDark(document.documentElement.classList.contains("dark"));
+    void notificationPermission().then(setPerm).catch(() => setPerm("unsupported"));
   }, []);
 
   const anyReminder = s.windDown.enabled || s.morning.enabled;
-
-  const isDark = document.documentElement.classList.contains("dark");
 
   return (
     <Shell>
@@ -76,9 +79,9 @@ function SettingsPage() {
       <div className="space-y-5 px-4 pb-6">
 
         {/* Header card */}
-        <section className="card-x relative overflow-hidden border-0 bg-gradient-to-br from-[#e9f0e7] via-[#f4f7f1] to-[#e3ece3] p-5 dark:from-[#26372c] dark:via-[#293a30] dark:to-[#304337]">
+        <section className="card-x relative overflow-hidden border border-border bg-gradient-to-br from-card via-background to-card p-5">
           <div className="relative z-10 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/70 text-primary dark:bg-white/10">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary text-primary">
               <Settings2 size={23} />
             </div>
 
@@ -233,7 +236,7 @@ function SettingsPage() {
             </div>
           </div>
 
-          {anyReminder && perm !== "granted" && (
+          {(anyReminder || db.meds.some((m) => m.enabled)) && perm !== "granted" && (
             <div className="rounded-2xl bg-secondary/70 p-4">
               <div className="flex items-center gap-2">
                 <Bell size={18} className="text-primary" />
@@ -246,18 +249,22 @@ function SettingsPage() {
                 Allow notifications so your phone can alert you about your routine.
               </p>
 
-              {perm === "default" && (
+              {(perm === "prompt" || perm === "prompt-with-rationale" || perm === "default") && (
                 <button
-                  onClick={async () =>
-                    setPerm(await Notification.requestPermission())
-                  }
+                  onClick={async () => {
+                    try {
+                      const status = await requestNotificationPermission();
+                      setPerm(status);
+                      if (status === "granted") await syncMedicationNotifications(db.meds);
+                    } catch { setPerm("unsupported"); }
+                  }}
                   className="mt-3 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
                 >
                   Allow notifications
                 </button>
               )}
 
-              {perm === "denied" && (
+              {(perm === "denied" || perm === "blocked") && (
                 <p className="mt-2 text-xs text-muted-foreground">
                   Blocked. Enable later in Android Settings → Apps → SleeepX → Notifications.
                 </p>
@@ -299,6 +306,7 @@ function SettingsPage() {
               const dark = !document.documentElement.classList.contains("dark");
               document.documentElement.classList.toggle("dark", dark);
               localStorage.setItem("sleeepx.theme", dark ? "dark" : "light");
+              setIsDark(dark);
             }}
             className="flex w-full items-center gap-3 text-left"
           >
@@ -313,7 +321,7 @@ function SettingsPage() {
                 Light / Dark mode
               </span>
               <span className="block text-xs text-muted-foreground">
-                Switch the Sage Calm color theme
+                Switch between the SleeepX light and dark themes
               </span>
             </span>
 
@@ -338,7 +346,7 @@ function SettingsPage() {
                 PIN Security
               </span>
               <span className="block text-xs text-muted-foreground">
-                Verify your current PIN before changing it
+                Set up a PIN or verify your current PIN before changing it
               </span>
             </span>
 
@@ -438,33 +446,86 @@ function SettingsPage() {
 
           <div className="grid grid-cols-2 gap-2">
             <button
-              onClick={() =>
-                download(
-                  "sleeepx-" + localDate() + ".json",
-                  JSON.stringify(db, null, 2),
-                  "application/json"
-                )
-              }
-              className="flex items-center justify-center gap-2 rounded-xl border border-border px-3 py-3 text-xs font-semibold"
+              disabled={exporting !== null}
+              onClick={async () => {
+                setExporting("all");
+                setExportMessage(null);
+                const filename = "sleeepx-" + localDate() + ".json";
+                try {
+                  const content = JSON.stringify(db, null, 2);
+                  if (Capacitor.isNativePlatform()) {
+                    const saved = await Filesystem.writeFile({
+                      path: filename,
+                      data: content,
+                      directory: Directory.Documents,
+                      recursive: true,
+                    });
+                    await Share.share({
+                      title: "SleepX full data backup",
+                      text: "Your complete SleepX data backup (JSON).",
+                      url: saved.uri,
+                      dialogTitle: "Export all SleepX data",
+                    });
+                    setExportMessage("Backup file created. Choose Save or another app from the Android share menu.");
+                  } else {
+                    download(filename, content, "application/json");
+                    setExportMessage("Your full data backup download has started.");
+                  }
+                } catch (error) {
+                  setExportMessage(error instanceof Error ? "Export failed: " + error.message : "Export failed. Please try again.");
+                } finally {
+                  setExporting(null);
+                }
+              }}
+              className="flex items-center justify-center gap-2 rounded-xl border border-border px-3 py-3 text-xs font-semibold disabled:opacity-50"
             >
               <Download size={16} />
-              Export all
+              {exporting === "all" ? "Preparing…" : "Export all"}
             </button>
 
             <button
-              onClick={() =>
-                download(
-                  "sleeepx-sleep-" + localDate() + ".csv",
-                  sleepCSV(db.sleep),
-                  "text/csv"
-                )
-              }
-              className="flex items-center justify-center gap-2 rounded-xl border border-border px-3 py-3 text-xs font-semibold"
+              disabled={exporting !== null}
+              onClick={async () => {
+                setExporting("sleep");
+                setExportMessage(null);
+                const filename = "sleeepx-sleep-" + localDate() + ".csv";
+                try {
+                  const content = sleepCSV(db.sleep);
+                  if (Capacitor.isNativePlatform()) {
+                    const saved = await Filesystem.writeFile({
+                      path: filename,
+                      data: content,
+                      directory: Directory.Documents,
+                      recursive: true,
+                    });
+                    await Share.share({
+                      title: "SleepX sleep records",
+                      text: "Your SleepX sleep records in CSV format.",
+                      url: saved.uri,
+                      dialogTitle: "Export SleepX sleep CSV",
+                    });
+                    setExportMessage("Sleep CSV created. Choose Save or another app from the Android share menu.");
+                  } else {
+                    download(filename, content, "text/csv;charset=utf-8");
+                    setExportMessage("Your sleep CSV download has started.");
+                  }
+                } catch (error) {
+                  setExportMessage(error instanceof Error ? "CSV export failed: " + error.message : "CSV export failed. Please try again.");
+                } finally {
+                  setExporting(null);
+                }
+              }}
+              className="flex items-center justify-center gap-2 rounded-xl border border-border px-3 py-3 text-xs font-semibold disabled:opacity-50"
             >
               <FileText size={16} />
-              Sleep CSV
+              {exporting === "sleep" ? "Preparing…" : "Sleep CSV"}
             </button>
           </div>
+          {exportMessage && (
+            <p role="status" className="rounded-xl bg-secondary px-3 py-2 text-xs leading-relaxed text-muted-foreground">
+              {exportMessage}
+            </p>
+          )}
 
           <button
             onClick={() =>
@@ -479,15 +540,48 @@ function SettingsPage() {
           </button>
         </section>
 
-        {/* Footer */}
-        <div className="py-3 text-center">
-          <p className="text-sm font-semibold text-primary">
-            SleeepX 3_4
+        {/* Brand and developer contact */}
+        <section className="space-y-4 py-4 text-center">
+          <div className="mx-auto inline-flex items-center justify-center rounded-full border border-primary/30 bg-primary/5 px-7 py-3 shadow-[0_0_28px_rgba(220,55,85,0.10)]">
+            <span className="text-lg font-extrabold tracking-[0.16em] text-primary">
+              SleepX
+            </span>
+          </div>
+
+          <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-muted-foreground">
+            Developed by ZEROX
           </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Your space. Your pace.
-          </p>
-        </div>
+
+          <div className="space-y-3 pt-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Contact Developer
+            </p>
+            <div className="flex items-center justify-center gap-3">
+              <a
+                href="https://www.facebook.com/share/1FKFx5nWHh/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Open developer Facebook profile"
+                className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border bg-card text-primary transition-colors hover:border-primary/50 hover:bg-primary/10"
+              >
+                <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current" aria-hidden="true">
+                  <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073c0 6.02 4.388 11.019 10.125 11.927v-8.437H7.078v-3.49h3.047V9.41c0-3.017 1.792-4.684 4.533-4.684 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.255h3.328l-.532 3.49h-2.796V24C19.612 23.092 24 18.093 24 12.073Z" />
+                </svg>
+              </a>
+              <a
+                href="mailto:syedlatifshafin@gmail.com"
+                aria-label="Email developer with Gmail"
+                className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border bg-card text-primary transition-colors hover:border-primary/50 hover:bg-primary/10"
+              >
+                <Mail size={21} />
+              </a>
+            </div>
+            <div className="flex justify-center gap-8 text-[11px] text-muted-foreground">
+              <span>Facebook</span>
+              <span>Gmail</span>
+            </div>
+          </div>
+        </section>
       </div>
     </Shell>
   );

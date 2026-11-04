@@ -1,5 +1,5 @@
-import { Home, Moon, Wind, NotebookPen, Settings } from "lucide-react";
-import { useEffect, type ReactNode } from "react";
+import { Home, Moon, Wind, NotebookPen, Settings, Pill } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
 import { dbError } from "@/lib/store";
 
 const tabs = [
@@ -7,15 +7,27 @@ const tabs = [
   { to: "/sleep", label: "Sleep", icon: Moon },
   { to: "/calm", label: "Calm", icon: Wind },
   { to: "/journal", label: "Journal", icon: NotebookPen },
+  { to: "/meds", label: "Meds", icon: Pill },
   { to: "/settings", label: "Settings", icon: Settings },
 ] as const;
 
 export function Shell({ children }: { children: ReactNode }) {
+  const [activePath, setActivePath] = useState("/");
+
   useEffect(() => {
     document.documentElement.classList.toggle(
       "dark",
       localStorage.getItem("sleeepx.theme") === "dark"
     );
+
+    const syncActiveTab = () => {
+      const path = window.location.hash.replace(/^#/, "") || "/";
+      setActivePath(path);
+    };
+
+    syncActiveTab();
+    window.addEventListener("hashchange", syncActiveTab);
+    return () => window.removeEventListener("hashchange", syncActiveTab);
   }, []);
 
   return (
@@ -28,27 +40,44 @@ export function Shell({ children }: { children: ReactNode }) {
 
       <main>{children}</main>
 
-      <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-border/70 bg-card/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-5px_25px_rgba(50,75,55,0.06)] backdrop-blur-xl">
-        <ul className="mx-auto grid max-w-md grid-cols-5 px-2">
-          {tabs.map(({ to, label, icon: Icon }) => (
-            <li key={to}>
-              <a
-                href={`#${to}`}
-                className="group relative flex min-h-[68px] flex-col items-center justify-center gap-1.5 py-2 text-[11px] font-medium text-muted-foreground transition-colors"
-              >
-                <span className="absolute top-0 h-[3px] w-8 rounded-b-full bg-primary opacity-0 transition-opacity opacity-0" />
-
-                <span className="flex h-9 w-11 items-center justify-center rounded-2xl transition-all ">
-                  <Icon
-                    className="h-[21px] w-[21px] transition-transform "
-                    strokeWidth={2}
+      <nav
+        aria-label="Main navigation"
+        className="fixed inset-x-3 bottom-3 z-20 mx-auto max-w-md rounded-[1.7rem] border border-border/90 bg-card/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_34px_rgba(0,0,0,0.32)] backdrop-blur-2xl"
+      >
+        <ul className="mx-auto grid max-w-md grid-cols-6 px-2">
+          {tabs.map(({ to, label, icon: Icon }) => {
+            const active = activePath === to;
+            return (
+              <li key={to}>
+                <a
+                  href={`#${to}`}
+                  aria-current={active ? "page" : undefined}
+                  className={`group relative flex min-h-[66px] flex-col items-center justify-center gap-1.5 rounded-2xl px-1 py-2 text-[10px] font-semibold transition-all ${
+                    active ? "text-primary" : "text-muted-foreground"
+                  }`}
+                >
+                  <span
+                    className={`absolute top-0 h-[3px] w-7 rounded-b-full bg-primary transition-opacity ${
+                      active ? "opacity-100" : "opacity-0"
+                    }`}
                   />
-                </span>
-
-                <span>{label}</span>
-              </a>
-            </li>
-          ))}
+                  <span
+                    className={`flex h-9 w-11 items-center justify-center rounded-2xl transition-all ${
+                      active ? "bg-primary/15 shadow-[0_0_18px_rgba(189,54,84,0.16)]" : ""
+                    }`}
+                  >
+                    <Icon
+                      className={`h-[21px] w-[21px] transition-transform ${
+                        active ? "scale-110" : ""
+                      }`}
+                      strokeWidth={active ? 2.3 : 1.8}
+                    />
+                  </span>
+                  <span>{label}</span>
+                </a>
+              </li>
+            );
+          })}
         </ul>
       </nav>
     </div>
@@ -65,8 +94,11 @@ export function PageHead({
   right?: ReactNode;
 }) {
   return (
-    <header className="mb-6 flex items-center justify-between gap-3 px-4">
+    <header className="mb-6 flex items-center justify-between gap-3 px-4 pt-1">
       <div className="min-w-0">
+        <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.24em] text-primary">
+          SleeepX
+        </p>
         <h1 className="text-2xl font-bold tracking-tight text-foreground">
           {title}
         </h1>
