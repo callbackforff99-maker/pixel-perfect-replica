@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { ArrowLeft, ChevronLeft, ChevronRight, Download, Share2, Printer, Moon, CalendarDays, BedDouble, BarChart3, BookOpen, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
-import { Filesystem, Directory } from "@capacitor/filesystem";
+import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
 import { jsPDF } from "jspdf";
 import { Shell } from "@/components/Shell";
@@ -109,7 +109,7 @@ function PdfPreview() {
       const pdf=exportPdf(); const filename="SleepX_Report_"+new Date().toISOString().slice(0,10)+".pdf";
       if(Capacitor.isNativePlatform()){
         const base64=pdf.output("datauristring").split(",")[1];
-        const saved=await Filesystem.writeFile({path:filename,data:base64,directory:Directory.Documents,recursive:true});
+        const saved=await Filesystem.writeFile({path:filename,data:base64,directory:Directory.Documents,encoding:Encoding.BASE64,recursive:true});
         setStatus({kind:"success",text:"PDF saved to your device Documents folder."});
         try{await Share.share({title:"SleepX Report",text:"Your SleepX sleep report",url:saved.uri,dialogTitle:"Share SleepX report"});}catch{}
       }else{
