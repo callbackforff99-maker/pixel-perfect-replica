@@ -506,6 +506,23 @@ function SleepPage() {
           )}
         </section>
 
+        {/* PDF REPORT PREVIEW */}
+        <section className="relative overflow-hidden rounded-[1.4rem] border border-[#7c2940] bg-gradient-to-br from-[#28101a] via-[#171016] to-[#0b0a0f] p-4 shadow-[0_12px_32px_rgba(189,54,84,0.12)]">
+          <div className="flex items-center gap-3">
+            <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[#bd3654]/15 text-[#ed5474]">
+              <CalendarDays className="h-5 w-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#ed5474]">Crimson edition</p>
+              <h2 className="mt-1 text-lg font-bold text-white">Your Sleep Report</h2>
+              <p className="text-xs text-[#b5a5ad]">Preview, download, share or print your report</p>
+            </div>
+          </div>
+          <a href="#/pdf-preview" className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-[#bd2348] px-4 py-3.5 text-sm font-bold text-white shadow-[0_8px_22px_rgba(189,35,72,0.25)]">
+            Preview PDF Report <ChevronRight className="h-4 w-4" />
+          </a>
+        </section>
+
         {/* SLEEP HISTORY */}
         <section>
           <div className="mb-3 flex items-center justify-between">
