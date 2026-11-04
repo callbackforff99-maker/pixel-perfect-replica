@@ -16,6 +16,7 @@ import {
   Sparkles,
   CalendarDays,
   BedDouble,
+  ChevronRight,
 } from "lucide-react";
 import { PageHead, Rating, Shell } from "@/components/Shell";
 import { localDate, nowISO, toLocalInput, uid, update, useDB } from "@/lib/store";
