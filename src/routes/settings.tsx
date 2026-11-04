@@ -1,5 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { Capacitor } from "@capacitor/core";
+import { Filesystem, Directory } from "@capacitor/filesystem";
+import { Share } from "@capacitor/share";
 import {
   ChevronRight,
   Pill,
@@ -50,6 +53,8 @@ function SettingsPage() {
 
   const [perm, setPerm] = useState<string>("unknown");
   const [isDark, setIsDark] = useState(false);
+  const [exporting, setExporting] = useState<"all" | "sleep" | null>(null);
+  const [exportMessage, setExportMessage] = useState<string | null>(null);
 
   const set = (p: Partial<Settings>) =>
     update((d) => ({
@@ -441,33 +446,86 @@ function SettingsPage() {
 
           <div className="grid grid-cols-2 gap-2">
             <button
-              onClick={() =>
-                download(
-                  "sleeepx-" + localDate() + ".json",
-                  JSON.stringify(db, null, 2),
-                  "application/json"
-                )
-              }
-              className="flex items-center justify-center gap-2 rounded-xl border border-border px-3 py-3 text-xs font-semibold"
+              disabled={exporting !== null}
+              onClick={async () => {
+                setExporting("all");
+                setExportMessage(null);
+                const filename = "sleeepx-" + localDate() + ".json";
+                try {
+                  const content = JSON.stringify(db, null, 2);
+                  if (Capacitor.isNativePlatform()) {
+                    const saved = await Filesystem.writeFile({
+                      path: filename,
+                      data: content,
+                      directory: Directory.Documents,
+                      recursive: true,
+                    });
+                    await Share.share({
+                      title: "SleepX full data backup",
+                      text: "Your complete SleepX data backup (JSON).",
+                      url: saved.uri,
+                      dialogTitle: "Export all SleepX data",
+                    });
+                    setExportMessage("Backup file created. Choose Save or another app from the Android share menu.");
+                  } else {
+                    download(filename, content, "application/json");
+                    setExportMessage("Your full data backup download has started.");
+                  }
+                } catch (error) {
+                  setExportMessage(error instanceof Error ? "Export failed: " + error.message : "Export failed. Please try again.");
+                } finally {
+                  setExporting(null);
+                }
+              }}
+              className="flex items-center justify-center gap-2 rounded-xl border border-border px-3 py-3 text-xs font-semibold disabled:opacity-50"
             >
               <Download size={16} />
-              Export all
+              {exporting === "all" ? "Preparing…" : "Export all"}
             </button>
 
             <button
-              onClick={() =>
-                download(
-                  "sleeepx-sleep-" + localDate() + ".csv",
-                  sleepCSV(db.sleep),
-                  "text/csv"
-                )
-              }
-              className="flex items-center justify-center gap-2 rounded-xl border border-border px-3 py-3 text-xs font-semibold"
+              disabled={exporting !== null}
+              onClick={async () => {
+                setExporting("sleep");
+                setExportMessage(null);
+                const filename = "sleeepx-sleep-" + localDate() + ".csv";
+                try {
+                  const content = sleepCSV(db.sleep);
+                  if (Capacitor.isNativePlatform()) {
+                    const saved = await Filesystem.writeFile({
+                      path: filename,
+                      data: content,
+                      directory: Directory.Documents,
+                      recursive: true,
+                    });
+                    await Share.share({
+                      title: "SleepX sleep records",
+                      text: "Your SleepX sleep records in CSV format.",
+                      url: saved.uri,
+                      dialogTitle: "Export SleepX sleep CSV",
+                    });
+                    setExportMessage("Sleep CSV created. Choose Save or another app from the Android share menu.");
+                  } else {
+                    download(filename, content, "text/csv;charset=utf-8");
+                    setExportMessage("Your sleep CSV download has started.");
+                  }
+                } catch (error) {
+                  setExportMessage(error instanceof Error ? "CSV export failed: " + error.message : "CSV export failed. Please try again.");
+                } finally {
+                  setExporting(null);
+                }
+              }}
+              className="flex items-center justify-center gap-2 rounded-xl border border-border px-3 py-3 text-xs font-semibold disabled:opacity-50"
             >
               <FileText size={16} />
-              Sleep CSV
+              {exporting === "sleep" ? "Preparing…" : "Sleep CSV"}
             </button>
           </div>
+          {exportMessage && (
+            <p role="status" className="rounded-xl bg-secondary px-3 py-2 text-xs leading-relaxed text-muted-foreground">
+              {exportMessage}
+            </p>
+          )}
 
           <button
             onClick={() =>
