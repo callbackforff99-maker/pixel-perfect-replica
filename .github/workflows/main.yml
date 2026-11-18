@@ -1,5 +1,7 @@
 name: SleeepX Android APK Build
 
+# Rebuild after the Android PDF export fix (native Capacitor file sharing).
+
 on:
   workflow_dispatch:
   push:
