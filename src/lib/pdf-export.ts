@@ -1,3 +1,7 @@
+import { Capacitor } from "@capacitor/core";
+import { Directory, Filesystem } from "@capacitor/filesystem";
+import { Share } from "@capacitor/share";
+
 export function canvasPagesToPdfBlob(canvases: HTMLCanvasElement[]): Blob {
   const encoder = new TextEncoder();
   const encode = (value: string) => encoder.encode(value);
@@ -41,64 +45,112 @@ export function canvasPagesToPdfBlob(canvases: HTMLCanvasElement[]): Blob {
   return new Blob([bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer], { type: "application/pdf" });
 }
 
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error ?? new Error("Could not read the PDF file."));
+    reader.onload = () => {
+      const result = String(reader.result ?? "");
+      const comma = result.indexOf(",");
+      if (comma < 0) {
+        reject(new Error("Could not encode the PDF file."));
+        return;
+      }
+      resolve(result.slice(comma + 1));
+    };
+    reader.readAsDataURL(blob);
+  });
+}
+
+function isAbortError(error: unknown): boolean {
+  return error instanceof DOMException
+    ? error.name === "AbortError"
+    : typeof error === "object" && error !== null && "name" in error && error.name === "AbortError";
+}
+
 export async function downloadPdfBlob(blob: Blob, filename: string): Promise<void> {
-  const file = new File([blob], filename, { type: "application/pdf" });
+  const safeName = filename.toLowerCase().endsWith(".pdf") ? filename : `${filename}.pdf`;
+  const file = new File([blob], safeName, { type: "application/pdf" });
+  const isAndroid = /Android/i.test(navigator.userAgent);
 
-  // Android WebViews often ignore the HTML download attribute. Use the native
-  // share sheet first when file sharing is supported, so the user can save to Files/Drive.
-  if (/Android/i.test(navigator.userAgent) && navigator.share && navigator.canShare?.({ files: [file] })) {
+  // Native Android: write the PDF to the app cache, then open Android's
+  // native share sheet so the user can save it to Downloads or Drive.
+  if (Capacitor.isNativePlatform()) {
     try {
-      await navigator.share({ files: [file], title: filename });
-      return;
-    } catch (error) {
-      // A user-cancelled share is intentional; don't unexpectedly start a download.
-      if (error instanceof DOMException && error.name === "AbortError") throw error;
-      // Continue to the browser save options if the share sheet is unavailable.
-    }
-  }
-
-  // Prefer the browser's native Save dialog where it is available.
-  type SaveHandle = {
-    createWritable: () => Promise<{
-      write: (data: Blob) => Promise<void>;
-      close: () => Promise<void>;
-    }>;
-  };
-  type SavePickerWindow = Window & {
-    showSaveFilePicker?: (options: {
-      suggestedName: string;
-      types: Array<{ description: string; accept: Record<string, string[]> }>;
-    }) => Promise<SaveHandle>;
-  };
-  const savePicker = (window as SavePickerWindow).showSaveFilePicker;
-  if (savePicker) {
-    try {
-      const handle = await savePicker.call(window, {
-        suggestedName: filename,
-        types: [{ description: "PDF document", accept: { "application/pdf": [".pdf"] } }],
+      const saved = await Filesystem.writeFile({
+        path: safeName,
+        data: await blobToBase64(blob),
+        directory: Directory.Cache,
+        recursive: true,
       });
-      const writable = await handle.createWritable();
-      await writable.write(blob);
-      await writable.close();
+      await Share.share({
+        title: safeName,
+        url: saved.uri,
+        dialogTitle: "Save or share SleepX PDF",
+      });
       return;
     } catch (error) {
-      // Respect cancellation; otherwise fall through to a standard browser download.
-      if (error instanceof DOMException && error.name === "AbortError") throw error;
+      // Closing the Android share sheet is a normal user action.
+      if (isAbortError(error)) return;
+      console.error("Native PDF save/share failed; trying browser fallback.", error);
     }
   }
 
-  // Standard Chrome/desktop browser fallback.
+  // Android Chrome/WebView: do not invoke showSaveFilePicker. It can reject
+  // with AbortError in embedded browsers and prevents the download fallback.
+  if (isAndroid && navigator.share && navigator.canShare?.({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: safeName });
+      return;
+    } catch (error) {
+      if (isAbortError(error)) return;
+      console.error("Web Share PDF failed; trying download fallback.", error);
+    }
+  }
+
+  // Desktop browsers: use the native file picker when available.
+  if (!isAndroid) {
+    type SaveHandle = {
+      createWritable: () => Promise<{
+        write: (data: Blob) => Promise<void>;
+        close: () => Promise<void>;
+      }>;
+    };
+    type SavePickerWindow = Window & {
+      showSaveFilePicker?: (options: {
+        suggestedName: string;
+        types: Array<{ description: string; accept: Record<string, string[]> }>;
+      }) => Promise<SaveHandle>;
+    };
+    const savePicker = (window as SavePickerWindow).showSaveFilePicker;
+    if (savePicker) {
+      try {
+        const handle = await savePicker.call(window, {
+          suggestedName: safeName,
+          types: [{ description: "PDF document", accept: { "application/pdf": [".pdf"] } }],
+        });
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+        return;
+      } catch (error) {
+        // A cancelled picker must not surface as an app error.
+        if (isAbortError(error)) return;
+        console.error("File picker failed; trying browser download fallback.", error);
+      }
+    }
+  }
+
+  // Standard browser fallback.
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = filename;
+  link.download = safeName;
   link.rel = "noopener";
   link.style.position = "fixed";
   link.style.left = "-10000px";
   document.body.appendChild(link);
   link.click();
   link.remove();
-
-  // Keep the URL alive long enough for Android browsers and WebViews to consume it.
   window.setTimeout(() => URL.revokeObjectURL(url), 5 * 60 * 1000);
 }
