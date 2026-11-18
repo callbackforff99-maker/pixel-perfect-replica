@@ -103,7 +103,7 @@ export interface FileRouteTypes {
   fullPaths: '/' | '/calm' | '/journal' | '/meds' | '/settings' | '/sleep' | '/profile' | '/daily' | '/emergency'
   fileRoutesByTo: FileRoutesByTo
   to: '/' | '/calm' | '/journal' | '/meds' | '/settings' | '/sleep' | '/daily' | '/emergency'
-  id: '__root__' | '/' | '/calm' | '/journal' | '/meds' | '/settings' | '/sleep' | '/daily' | '/emergency'
+  id: '__root__' | '/' | '/calm' | '/journal' | '/meds' | '/settings' | '/sleep' | '/profile' | '/daily' | '/emergency'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
