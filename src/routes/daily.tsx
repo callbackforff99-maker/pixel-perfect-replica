@@ -219,16 +219,18 @@ function DailyTools() {
       const images = buildPdfCanvas(report, reportStart, reportEnd, averageSleep, sleepLogsInRange.length);
       const blob = makePdf(images);
       const filename = "SleeepX-Record-" + reportStart + "-to-" + reportEnd + ".pdf";
-      const file = new File([blob], filename, { type: "application/pdf" });
-      if (navigator.canShare?.({ files: [file] }) && navigator.share) {
-        await navigator.share({ files: [file], title: "SleeepX Record", text: "Sleep and wellness record: " + reportStart + " to " + reportEnd });
-      } else {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url; link.download = filename; link.style.display = "none";
-        document.body.appendChild(link); link.click(); link.remove();
-        window.setTimeout(() => URL.revokeObjectURL(url), 30000);
-      }
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.style.display = "none";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      // Keep the Blob URL alive long enough for Android browsers/WebView PDF handling.
+      window.setTimeout(() => URL.revokeObjectURL(url), 120000);
     } catch (error) {
       if (!(error instanceof DOMException && error.name === "AbortError")) {
         setReportError("PDF তৈরি করা যায়নি। আবার চেষ্টা কর।");
