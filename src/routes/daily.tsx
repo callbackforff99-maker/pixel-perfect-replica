@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { ArrowLeft, Droplets, Download, Eye, Plus, X, Pencil, Trash2, Target, GlassWater, RotateCcw, Check, Clock3 } from "lucide-react";
 import { PageHead, Shell } from "@/components/Shell";
 import { localDate, useDB } from "@/lib/store";
+import { downloadPdfBlob } from "@/lib/pdf-export";
 
 export const Route = createFileRoute("/daily")({ component: DailyTools });
 const WATER_KEY = "sleeepx.water.ml.v2";
@@ -219,18 +220,7 @@ function DailyTools() {
       const images = buildPdfCanvas(report, reportStart, reportEnd, averageSleep, sleepLogsInRange.length);
       const blob = makePdf(images);
       const filename = "SleeepX-Record-" + reportStart + "-to-" + reportEnd + ".pdf";
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = filename;
-      link.target = "_blank";
-      link.rel = "noopener";
-      link.style.display = "none";
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      // Keep the Blob URL alive long enough for Android browsers/WebView PDF handling.
-      window.setTimeout(() => URL.revokeObjectURL(url), 120000);
+      downloadPdfBlob(blob, filename);
     } catch (error) {
       if (!(error instanceof DOMException && error.name === "AbortError")) {
         setReportError("PDF তৈরি করা যায়নি। আবার চেষ্টা কর।");
