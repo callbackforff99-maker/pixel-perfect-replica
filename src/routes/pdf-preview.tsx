@@ -99,7 +99,7 @@ function PdfPreview() {
     setBusy(true);setStatus(null);
     try{
       const blob=exportPdf();
-      downloadPdfBlob(blob,filename);
+      await downloadPdfBlob(blob,filename);
       setStatus({kind:"success",text:"Your PDF download has started. If it doesn't appear, check your browser's downloads."});
     }catch(e){setStatus({kind:"error",text:e instanceof Error?e.message:"Couldn't create the PDF. Please try again."});}
     finally{setBusy(false);}
@@ -109,7 +109,7 @@ function PdfPreview() {
       const blob=exportPdf();
       const file=new File([blob],filename,{type:"application/pdf"});
       if(navigator.canShare?.({files:[file]})){await navigator.share({files:[file],title:"SleepX Report"});}
-      else {downloadPdfBlob(blob,filename);setStatus({kind:"success",text:"Your PDF download has started."});}
+      else {await downloadPdfBlob(blob,filename);setStatus({kind:"success",text:"Your PDF download has started."});}
     }catch{setStatus({kind:"error",text:"Sharing isn't available on this device. Try Download instead."});}
   };
   const print=()=>{
