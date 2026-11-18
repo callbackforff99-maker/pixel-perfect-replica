@@ -346,6 +346,23 @@ function SettingsPage() {
           </button>
         </section>
 
+        {/* Personal profile */}
+        <Link
+          to="/profile"
+          className="card-x flex items-center gap-3 border-[#a91d39]/20 p-5 transition-colors hover:bg-secondary/40"
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#a91d39]/10 text-[#a91d39]">
+            <UserRound size={20} />
+          </div>
+          <span className="flex-1">
+            <span className="block text-sm font-bold">Personal Profile</span>
+            <span className="block text-xs text-muted-foreground">
+              Name, height, weight and sleep preferences
+            </span>
+          </span>
+          <ChevronRight size={19} className="text-muted-foreground" />
+        </Link>
+
         {/* Medication */}
         <Link
           to="/meds"
