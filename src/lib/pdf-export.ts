@@ -42,24 +42,63 @@ export function canvasPagesToPdfBlob(canvases: HTMLCanvasElement[]): Blob {
 }
 
 export async function downloadPdfBlob(blob: Blob, filename: string): Promise<void> {
-  // Android's native share sheet is a reliable fallback in app WebViews that do not
-  // implement the HTML download attribute. The user can choose Files/Drive to save it.
-  if (/Android/i.test(navigator.userAgent)) {
-    const file = new File([blob], filename, { type: "application/pdf" });
-    if (navigator.canShare?.({ files: [file] }) && navigator.share) {
+  const file = new File([blob], filename, { type: "application/pdf" });
+
+  // Android WebViews often ignore the HTML download attribute. Use the native
+  // share sheet first when file sharing is supported, so the user can save to Files/Drive.
+  if (/Android/i.test(navigator.userAgent) && navigator.share && navigator.canShare?.({ files: [file] })) {
+    try {
       await navigator.share({ files: [file], title: filename });
       return;
+    } catch (error) {
+      // A user-cancelled share is intentional; don't unexpectedly start a download.
+      if (error instanceof DOMException && error.name === "AbortError") throw error;
+      // Continue to the browser save options if the share sheet is unavailable.
     }
   }
+
+  // Prefer the browser's native Save dialog where it is available.
+  type SaveHandle = {
+    createWritable: () => Promise<{
+      write: (data: Blob) => Promise<void>;
+      close: () => Promise<void>;
+    }>;
+  };
+  type SavePickerWindow = Window & {
+    showSaveFilePicker?: (options: {
+      suggestedName: string;
+      types: Array<{ description: string; accept: Record<string, string[]> }>;
+    }) => Promise<SaveHandle>;
+  };
+  const savePicker = (window as SavePickerWindow).showSaveFilePicker;
+  if (savePicker) {
+    try {
+      const handle = await savePicker.call(window, {
+        suggestedName: filename,
+        types: [{ description: "PDF document", accept: { "application/pdf": [".pdf"] } }],
+      });
+      const writable = await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      return;
+    } catch (error) {
+      // Respect cancellation; otherwise fall through to a standard browser download.
+      if (error instanceof DOMException && error.name === "AbortError") throw error;
+    }
+  }
+
+  // Standard Chrome/desktop browser fallback.
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
   link.download = filename;
+  link.rel = "noopener";
   link.style.position = "fixed";
   link.style.left = "-10000px";
   document.body.appendChild(link);
   link.click();
   link.remove();
-  // Keep the URL alive briefly so Android browsers and WebViews can finish handling it.
+
+  // Keep the URL alive long enough for Android browsers and WebViews to consume it.
   window.setTimeout(() => URL.revokeObjectURL(url), 5 * 60 * 1000);
 }
