@@ -7,10 +7,10 @@ import type { SleepLog } from "./sleep";
  */
 export type MoodEntry = {
   id: string;
-  date: string; // local YYYY-MM-DD
+  date: string;
   mood: number;
-  stress?: number | undefined | undefined;
-  energy?: number | undefined | undefined;
+  stress?: number | undefined;
+  energy?: number | undefined;
   text?: string | undefined;
   createdAt: string;
   updatedAt: string;
@@ -27,6 +27,17 @@ export type Medication = {
 };
 export type MedEvent = { id: string; medId: string; at: string; action: "taken" | "dismissed" };
 export type BreathSession = { id: string; at: string; seconds: number; completed: boolean };
+export type Profile = {
+  name: string;
+  age: string;
+  heightCm: string;
+  weightKg: string;
+  gender: "male" | "female" | "prefer-not-to-say" | "";
+  occupation: string;
+  activityLevel: "low" | "moderate" | "high" | "";
+  photo: string;
+  sleepGoalHours: string;
+};
 export type Settings = {
   bedtime: string;
   wake: string;
@@ -45,9 +56,10 @@ export type DB = {
   medEvents: MedEvent[];
   breath: BreathSession[];
   settings: Settings;
+  profile: Profile | null;
 };
 
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 const KEY = "sleeepx.db";
 
 export const defaultSettings: Settings = {
@@ -60,8 +72,20 @@ export const defaultSettings: Settings = {
   sound: false,
 };
 
+export const emptyProfile = (): Profile => ({
+  name: "",
+  age: "",
+  heightCm: "",
+  weightKg: "",
+  gender: "",
+  occupation: "",
+  activityLevel: "",
+  photo: "",
+  sleepGoalHours: "8",
+});
+
 export function emptyDB(): DB {
-  return { version: SCHEMA_VERSION, sleep: [], mood: [], meds: [], medEvents: [], breath: [], settings: defaultSettings };
+  return { version: SCHEMA_VERSION, sleep: [], mood: [], meds: [], medEvents: [], breath: [], settings: defaultSettings, profile: null };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -71,6 +95,7 @@ export function migrate(raw: any): DB {
     db.settings = { ...defaultSettings, ...(raw.settings ?? {}), sections: { ...defaultSettings.sections, ...(raw.settings?.sections ?? {}) } };
     db.breath = raw.breath ?? [];
   }
+  db.profile = raw.profile ?? null;
   db.version = SCHEMA_VERSION;
   return db;
 }
@@ -145,7 +170,7 @@ export function sleepCSV(logs: SleepLog[]) {
   return ["start,end,awakenings,quality,notes", ...logs.map((l) => [l.start, l.end, l.awakenings ?? "", l.quality ?? "", esc(l.notes)].join(","))].join("\n");
 }
 
-export function validateMood(m: { mood: number; stress?: number | undefined | undefined; energy?: number | undefined }) {
+export function validateMood(m: { mood: number; stress?: number | undefined; energy?: number | undefined }) {
   const ok = (v?: number) => v === undefined || (Number.isInteger(v) && v >= 1 && v <= 5);
   if (!Number.isInteger(m.mood) || m.mood < 1 || m.mood > 5) return "Pick a mood from 1 to 5.";
   if (!ok(m.stress) || !ok(m.energy)) return "Ratings must be 1–5.";
