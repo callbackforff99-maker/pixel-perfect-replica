@@ -220,7 +220,7 @@ function DailyTools() {
       const images = buildPdfCanvas(report, reportStart, reportEnd, averageSleep, sleepLogsInRange.length);
       const blob = makePdf(images);
       const filename = "SleeepX-Record-" + reportStart + "-to-" + reportEnd + ".pdf";
-      downloadPdfBlob(blob, filename);
+      await downloadPdfBlob(blob, filename);
     } catch (error) {
       if (!(error instanceof DOMException && error.name === "AbortError")) {
         setReportError("PDF তৈরি করা যায়নি। আবার চেষ্টা কর।");
