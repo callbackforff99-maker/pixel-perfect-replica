@@ -18,6 +18,7 @@ import {
   FileText,
   Settings2,
   Sparkles,
+  UserRound,
 } from "lucide-react";
 import { PageHead, Shell } from "@/components/Shell";
 import {
