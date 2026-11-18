@@ -12,6 +12,8 @@ import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { requestFirstRunPermission, syncMedicationNotifications } from "@/lib/medication-notifications";
+import { useDB } from "@/lib/store";
 
 function NotFoundComponent() {
   return (
@@ -117,6 +119,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const db = useDB();
   const [stage, setStage] = useState<"splash" | "pin" | "app">("splash");
   const [changingPin, setChangingPin] = useState(false);
   const [pinVerified, setPinVerified] = useState(false);
@@ -126,11 +129,45 @@ function RootComponent() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    setSavedPin(localStorage.getItem("sleeepx.pin.v1"));
-    const managePin = () => { setChangingPin(true); setPinVerified(false); setPin(""); setConfirmPin(""); setMessage(""); setStage("pin"); };
+    if (stage !== "app") return;
+    void (async () => {
+      await requestFirstRunPermission();
+      await syncMedicationNotifications(db.meds);
+    })().catch((error) => console.warn("SleeepX notification setup failed", error));
+  }, [stage, db.meds]);
+
+  useEffect(() => {
+    const managePin = () => {
+      const currentPin = localStorage.getItem("sleeepx.pin.v1");
+      setSavedPin(currentPin);
+      setChangingPin(Boolean(currentPin));
+      setPinVerified(false);
+      setPin("");
+      setConfirmPin("");
+      setMessage("");
+      setStage("pin");
+    };
+
     window.addEventListener("sleeepx:manage-pin", managePin);
-    const timer = window.setTimeout(() => setStage("pin"), 1600);
-    return () => { window.clearTimeout(timer); window.removeEventListener("sleeepx:manage-pin", managePin); };
+
+    const splashTimer = window.setTimeout(() => {
+      const currentPin = localStorage.getItem("sleeepx.pin.v1");
+      const hasSkippedPin = localStorage.getItem("sleeepx.pin.skipped.v1") === "true";
+      setSavedPin(currentPin);
+
+      if (currentPin) {
+        setStage("pin");
+      } else if (hasSkippedPin) {
+        setStage("app");
+      } else {
+        setStage("pin");
+      }
+    }, 5200);
+
+    return () => {
+      window.clearTimeout(splashTimer);
+      window.removeEventListener("sleeepx:manage-pin", managePin);
+    };
   }, []);
 
   const submitPin = () => {
@@ -138,16 +175,27 @@ function RootComponent() {
       setMessage("Enter a 4–6 digit PIN.");
       return;
     }
+
     if (changingPin && !pinVerified) {
-      if (pin !== savedPin) { setMessage("Incorrect current PIN."); setPin(""); return; }
-      setPinVerified(true); setPin(""); setMessage(""); return;
+      if (pin !== savedPin) {
+        setMessage("Incorrect current PIN.");
+        setPin("");
+        return;
+      }
+      setPinVerified(true);
+      setPin("");
+      setMessage("");
+      return;
     }
+
     if (!savedPin || changingPin) {
       if (pin !== confirmPin) {
         setMessage("PINs do not match. Try again.");
         return;
       }
+
       localStorage.setItem("sleeepx.pin.v1", pin);
+      localStorage.removeItem("sleeepx.pin.skipped.v1");
       setSavedPin(pin);
       setChangingPin(false);
       setPinVerified(false);
@@ -155,30 +203,44 @@ function RootComponent() {
       setStage("app");
       return;
     }
+
     if (pin !== savedPin) {
       setMessage("Incorrect PIN. Try again.");
       setPin("");
       return;
     }
+
+    setMessage("");
+    setStage("app");
+  };
+
+  const skipPin = () => {
+    localStorage.setItem("sleeepx.pin.skipped.v1", "true");
     setMessage("");
     setStage("app");
   };
 
   if (stage !== "app") {
     return (
-      <div className="fixed inset-0 z-50 flex min-h-screen items-center justify-center bg-[#050806] px-6 text-white">
+      <div className="fixed inset-0 z-50 flex min-h-screen items-center justify-center bg-[#08070c] px-6 text-white">
         {stage === "splash" ? (
-          <div className="text-center">
-            <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl border border-emerald-400/30 bg-emerald-400/10 text-emerald-300">
-              <span className="text-3xl font-extrabold">S</span>
+          <div className="sleeepx-splash relative w-full max-w-sm text-center">
+            <div aria-hidden="true" className="sleeepx-eclipse">
+              <span className="sleeepx-eclipse-core" />
+              <span className="sleeepx-eclipse-halo" />
             </div>
-            <p className="text-xs font-bold tracking-[0.35em] text-emerald-300">SLEEEPX</p>
-            <h1 className="mt-3 text-2xl font-extrabold tracking-wide">Rest. Reset. Rise.</h1>
-            <p className="mt-8 text-[10px] tracking-[0.25em] text-white/45">DEVELOPED BY ZEROX</p>
+            <div className="sleeepx-wordmark-wrap">
+              <h1 className="sleeepx-wordmark">SleeepX</h1>
+              <p className="sleeepx-tagline">SLEEP <span>•</span> TRACK <span>•</span> RESTORE</p>
+            </div>
+            <div className="sleeepx-credit">
+              <span className="sleeepx-credit-line" />
+              <p>DEVELOPED BY ZEROX</p>
+            </div>
           </div>
         ) : (
-          <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-[#0c120e] p-6 shadow-2xl">
-            <p className="text-xs font-bold tracking-[0.25em] text-emerald-300">SLEEEPX SECURITY</p>
+          <div className="w-full max-w-sm rounded-3xl border border-[#49313c] bg-[#17131a] p-6 shadow-2xl">
+            <p className="text-xs font-bold tracking-[0.25em] text-[#f06a83]">SLEEEPX SECURITY</p>
             <h1 className="mt-3 text-2xl font-bold">{changingPin && !pinVerified ? "Verify current PIN" : changingPin ? "Change your PIN" : savedPin ? "Welcome back" : "Set up your PIN"}</h1>
             <p className="mt-2 text-sm text-white/60">
               {changingPin && !pinVerified ? "Enter your current PIN before changing it." : changingPin ? "Choose a new 4–6 digit PIN." : savedPin ? "Enter your PIN to open your private space." : "Create a 4–6 digit PIN, or skip and set one later in Settings."}
@@ -192,7 +254,7 @@ function RootComponent() {
               value={pin}
               onChange={(e) => { setPin(e.target.value.replace(/\D/g, "").slice(0, 6)); setMessage(""); }}
               placeholder="Enter PIN"
-              className="mt-5 w-full rounded-2xl border border-white/10 bg-black px-4 py-4 text-center text-xl tracking-[0.5em] text-white outline-none focus:border-emerald-400"
+              className="mt-5 w-full rounded-2xl border border-white/10 bg-black px-4 py-4 text-center text-xl tracking-[0.5em] text-white outline-none focus:border-[#e45170]"
             />
             {(!savedPin || (changingPin && pinVerified)) && (
               <input
@@ -204,15 +266,15 @@ function RootComponent() {
                 value={confirmPin}
                 onChange={(e) => { setConfirmPin(e.target.value.replace(/\D/g, "").slice(0, 6)); setMessage(""); }}
                 placeholder="Confirm PIN"
-                className="mt-3 w-full rounded-2xl border border-white/10 bg-black px-4 py-4 text-center text-xl tracking-[0.5em] text-white outline-none focus:border-emerald-400"
+                className="mt-3 w-full rounded-2xl border border-white/10 bg-black px-4 py-4 text-center text-xl tracking-[0.5em] text-white outline-none focus:border-[#e45170]"
               />
             )}
             {message && <p className="mt-3 text-sm text-red-300">{message}</p>}
-            <button onClick={submitPin} className="mt-5 w-full rounded-2xl bg-emerald-400 px-4 py-4 font-bold text-[#061009]">
+            <button onClick={submitPin} className="mt-5 w-full rounded-2xl bg-[#bd3654] px-4 py-4 font-bold text-white shadow-[0_8px_22px_rgba(189,54,84,0.2)]">
               {changingPin && !pinVerified ? "Verify PIN" : changingPin ? "Save new PIN" : savedPin ? "Unlock SleeepX" : "Save PIN & continue"}
             </button>
             {!savedPin && !changingPin && (
-              <button onClick={() => { setStage("app"); setMessage(""); }} className="mt-3 w-full rounded-2xl border border-white/15 px-4 py-3 text-sm font-semibold text-white/80">
+              <button onClick={skipPin} className="mt-3 w-full rounded-2xl border border-white/15 px-4 py-3 text-sm font-semibold text-white/80">
                 Skip for now
               </button>
             )}
